@@ -1,0 +1,42 @@
+name: MOR-25 OpenAlex pilot rehearsal
+on:
+  workflow_call:
+  pull_request:
+    paths:
+      - ".github/workflows/mor25-pilot-rehearsal.yml"
+      - ".github/workflows/full-live-analysis.yml"
+      - "scripts/mor25_openalex_pilot.py"
+      - "src/scientific_sources/**"
+      - "tests/test_retrieval_trace.py"
+
+permissions:
+  contents: read
+
+jobs:
+  rehearse:
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_DB: mor25_fixture
+          POSTGRES_HOST_AUTH_METHOD: trust
+        ports:
+          - "127.0.0.1:55432:5432"
+        options: >-
+          --health-cmd pg_isready --health-interval 5s
+          --health-timeout 5s --health-retries 10
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+          persist-credentials: false
+      - uses: actions/setup-python@v6
+        with:
+          python-version: "3.11"
+      - run: python -m pip install -e ".[dev]" "psycopg[binary]==3.3.9"
+      - name: Exercise protected acquisition with simulated HTTP and a disposable database
+        env:
+          MOR25_TEST_POSTGRES: "1"
+          MOR25_REHEARSAL_SHA: ${{ github.event.pull_request.head.sha || github.sha }}
+        run: python -m pytest -q tests/test_retrieval_trace.py

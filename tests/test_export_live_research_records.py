@@ -15,6 +15,7 @@ import yaml
 from unittest.mock import MagicMock, patch
 
 from scripts.export_live_research_records import (
+    _persist_completed_results_before_budget_stop,
     LiveContextClassificationRepository,
     PhysicalRequestCountContractError,
     QUERY_EXECUTION_FIELDS,
@@ -2756,3 +2757,32 @@ class TestProviderOwnedPhysicalRequestCount:
                 provider_configured=False,
                 page_diagnostics=[],
             )
+
+
+def test_budget_stop_partial_evidence_is_preserved_but_not_publishable(tmp_path):
+    from src.scientific_sources.models import LiteratureRecord, ProviderResult
+
+    record = LiteratureRecord(
+        title="Completed evidence",
+        authors=[],
+        year=2026,
+        doi="10.1234/completed",
+        source_id="crossref:completed",
+        provider="Crossref",
+    )
+    result = ProviderResult(
+        records=[record],
+        raw_payload={"message": {"items": []}},
+    )
+    _persist_completed_results_before_budget_stop(
+        [("crossref", result)],
+        query="q",
+        query_id="q-1",
+        output_dir=tmp_path,
+    )
+    partial = tmp_path / "partial_acquisition_failed"
+    assert (partial / "completed_records.jsonl").is_file()
+    assert (partial / "raw_occurrences.jsonl").is_file()
+    assert (partial / "provider_payload_index.jsonl").is_file()
+    assert (partial / "PUBLICATION_BLOCKED").is_file()
+    assert not (tmp_path / "live_records.json").exists()

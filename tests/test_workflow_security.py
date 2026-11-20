@@ -15,6 +15,10 @@ immediately without relying on substring searches that can miss nested keys.
 from __future__ import annotations
 
 import os
+import threading
+import urllib.error
+import urllib.request
+from http.server import BaseHTTPRequestHandler, HTTPServer
 from pathlib import Path
 import subprocess
 from typing import Any, Dict, List
@@ -382,3 +386,42 @@ def test_research_pipeline_authorization_is_case_sensitive(
     assert (
         output_file.read_text(encoding="utf-8").strip() == f"authorized={expected}"
     )
+
+
+def test_research_api_smoke_freeze_only_blocks_live_mode() -> None:
+    job = _load_workflows()["research-api-smoke"]["jobs"]["research-api-smoke"]
+    steps = job["steps"]
+    names = [step.get("name") for step in steps]
+    clear_name = "Clear committed provider-health snapshot"
+    freeze_name = "Enforce MOR-25 G2 shared-ledger freeze"
+    clear = steps[names.index(clear_name)]
+    freeze = steps[names.index(freeze_name)]
+    assert names.index(clear_name) < names.index(freeze_name)
+    assert not clear.get("if")
+    assert "rm -f outputs/research_api_health.json" in clear["run"]
+    assert freeze.get("if") == "github.event.inputs.live_api_tests == 'true'"
+
+
+def test_loopback_redirect_cannot_escape_test_network_guard() -> None:
+    class RedirectHandler(BaseHTTPRequestHandler):
+        def do_GET(self):
+            self.send_response(302)
+            self.send_header("Location", "https://example.com/escaped")
+            self.end_headers()
+
+        def log_message(self, format, *args):
+            return
+
+    server = HTTPServer(("127.0.0.1", 0), RedirectHandler)
+    thread = threading.Thread(target=server.serve_forever, daemon=True)
+    thread.start()
+    try:
+        with pytest.raises(urllib.error.HTTPError) as exc:
+            urllib.request.urlopen(
+                f"http://127.0.0.1:{server.server_port}/redirect",
+                timeout=2,
+            )
+        assert exc.value.code == 302
+    finally:
+        server.shutdown()
+        thread.join(timeout=2)

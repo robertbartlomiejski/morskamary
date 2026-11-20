@@ -159,6 +159,13 @@ jobs:
         with:
           persist-credentials: false
 
+      # MOR-25 G2 fail-closed freeze: runner-local SQLite cannot enforce a
+      # cumulative physical-attempt ceiling across separately hosted runners.
+      - name: Enforce MOR-25 G2 shared-ledger freeze
+        run: |
+          echo '::error::MOR-25 G2 BLOCKED: no verified durable atomic cross-runner attempt ledger; no live provider dispatch authorized.'
+          exit 1
+
       - name: Set up Python
         uses: actions/setup-python@v6
         with:
@@ -177,6 +184,19 @@ jobs:
         run: |
           set -euo pipefail
           python scripts/check_research_env.py
+
+      - name: Initialize physical HTTP-attempt budget and ledger
+        run: |
+          set -euo pipefail
+          python scripts/manage_physical_attempt_budget.py init \
+            --acquisition-id "smoke-${{ github.run_id }}" \
+            --budget-id "smoke-${{ github.run_id }}" \
+            --workflow-run-id "${{ github.run_id }}-${{ github.run_attempt }}" \
+            --run-attempt "${{ github.run_attempt }}" \
+            --providers all --queries 1 --logical-pages 1 --rows-per-page 2 \
+            --budget-output "$RUNNER_TEMP/physical_attempt_budget.json" \
+            --ledger "$RUNNER_TEMP/physical_attempt_ledger/smoke.sqlite" \
+            --github-env "$GITHUB_ENV"
 
       - name: Provider health preflight
         run: |
