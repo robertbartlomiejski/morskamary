@@ -19,6 +19,11 @@ Entries
 Unreleased
 Use this section for changes in progress that are not yet merged into the main branch. Move items to dated entries when merged.
 
+- 2026-11-20 (fix: bind the protected live workflow to the shared PostgreSQL ledger)
+  Files affected .github/workflows/full-live-analysis.yml tests/test_full_live_analysis_workflow.py CHANGELOG.txt
+  Share the runtime ledger across initialization, provider health, acquisition and audit.
+  Keep G2 frozen pending an authorized pilot. This change produces no scientific records.
+
 - 2026-11-16 (fix: diagnose MOR-26 acceptance skips and bind evidence to the exact run)
   Change type fix
   Scope governance GitHub Actions

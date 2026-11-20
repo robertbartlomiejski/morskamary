@@ -115,6 +115,7 @@ jobs:
       EXECUTION_MODE: ${{ inputs.execution_mode }}
       MOR25_ACQUISITION_ID: ${{ inputs.acquisition_id }}
       MOR25_BUDGET_ID: ${{ inputs.budget_id }}
+      ATTEMPT_LEDGER_BACKEND: postgres
       REQUESTED_PROVIDERS: ${{ inputs.providers }}
       LOGICAL_PAGES: ${{ inputs.logical_pages }}
       ROWS_PER_PAGE: ${{ inputs.rows_per_page }}
@@ -183,7 +184,7 @@ jobs:
         run: |
           set -euo pipefail
           python -m pip install --upgrade pip
-          pip install -e ".[dev]"
+          pip install -e ".[dev]" "psycopg[binary]==3.3.9"
 
       - name: Capture deterministic run identity
         run: |
@@ -231,6 +232,9 @@ jobs:
             --github-env "$GITHUB_ENV"
 
       - name: Initialize physical HTTP-attempt budget and ledger
+        id: init_budget
+        env:
+          ATTEMPT_LEDGER_DSN: ${{ secrets.LIVE_ATTEMPT_LEDGER_RUNTIME_DSN }}
         run: |
           set -euo pipefail
           # Run-scoped, fail-closed ceiling reserved before every outgoing request
@@ -243,10 +247,11 @@ jobs:
             --run-attempt "$GH_CONTEXT_RUN_ATTEMPT" \
             --plan outputs/governance/api_budget_plan.json \
             --budget-output outputs/governance/physical_attempt_budget.json \
-            --ledger "$RUNNER_TEMP/physical_attempt_ledger/${CURRENT_RUN_ID}.sqlite" \
             --github-env "$GITHUB_ENV"
 
       - name: Provider health preflight
+        env:
+          ATTEMPT_LEDGER_DSN: ${{ secrets.LIVE_ATTEMPT_LEDGER_RUNTIME_DSN }}
         run: |
           set -euo pipefail
           HEALTH_ARGS=(--require-configured)
@@ -265,6 +270,8 @@ jobs:
           python scripts/export_research_source_capabilities.py
 
       - name: Export live research records
+        env:
+          ATTEMPT_LEDGER_DSN: ${{ secrets.LIVE_ATTEMPT_LEDGER_RUNTIME_DSN }}
         run: |
           set -euo pipefail
           python scripts/export_live_research_records.py \
@@ -279,17 +286,14 @@ jobs:
             --offline false
 
       - name: Write sanitized physical HTTP-attempt audit
-        if: always()
+        if: always() && steps.init_budget.outcome == 'success'
+        env:
+          ATTEMPT_LEDGER_DSN: ${{ secrets.LIVE_ATTEMPT_LEDGER_RUNTIME_DSN }}
         run: |
           set -euo pipefail
-          if [ -n "${ATTEMPT_LEDGER_PATH:-}" ] && [ -f "${ATTEMPT_LEDGER_PATH}" ]; then
-            python scripts/manage_physical_attempt_budget.py audit \
-              --budget "$ATTEMPT_BUDGET_FILE" \
-              --ledger "$ATTEMPT_LEDGER_PATH" \
-              --output outputs/governance/physical_attempt_audit.json
-          else
-            echo "[WARN] no physical attempt ledger was initialised; no audit written"
-          fi
+          python scripts/manage_physical_attempt_budget.py audit \
+            --budget "$ATTEMPT_BUDGET_FILE" \
+            --output outputs/governance/physical_attempt_audit.json
 
       - name: Enforce post-acquisition logical-request budget ceiling
         run: |
