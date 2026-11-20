@@ -21,6 +21,8 @@ from datetime import datetime, timezone
 from email.utils import parsedate_to_datetime
 from typing import Any, Dict, List, Optional, cast
 
+from src.scientific_sources.retrieval_trace import record_page
+
 from src.scientific_sources.attempt_budget import attempt_context, governed_urlopen
 from src.scientific_sources.base import BaseProvider
 from src.scientific_sources.models import (
@@ -565,6 +567,7 @@ class OpenAlexProvider(BaseProvider):
                 return (result, page_diagnostics) if legacy_api else result
 
             assert payload is not None
+            record_page("openalex", logical_page, 1, safe_rows, (logical_page - 1) * safe_rows, payload)
             items = payload.get("results", [])
             if not isinstance(items, list):
                 items = []

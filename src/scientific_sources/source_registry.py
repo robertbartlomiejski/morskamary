@@ -18,6 +18,8 @@ from __future__ import annotations
 
 from typing import Dict, List
 
+from src.scientific_sources.retrieval_trace import query_scope
+
 from src.scientific_sources.attempt_budget import AttemptBudgetError
 
 from src.scientific_sources.base import BaseProvider
@@ -135,15 +137,25 @@ class SourceRegistry:
         completed: List[tuple[str, ProviderResult]] = []
         for provider in targets:
             try:
-                result = provider.search_paginated(
-                    query,
-                    pages=pages,
-                    rows_per_page=rows_per_page,
-                    sort_strategy=sort_strategy_by_provider.get(
-                        provider.capability.name, ""
-                    ),
-                    time_window=time_window,
-                )
+                name = provider.capability.name
+                with query_scope(query, name) as trace:
+                    result = provider.search_paginated(
+                        query,
+                        pages=pages,
+                        rows_per_page=rows_per_page,
+                        sort_strategy=sort_strategy_by_provider.get(
+                            provider.capability.name, ""
+                        ),
+                        time_window=time_window,
+                    )
+                    if trace is not None:
+                        if not provider.capability.configured:
+                            status = "not_configured"
+                        elif result.errors:
+                            status = "rate_limited" if result.rate_limit_status == "rate-limited" else "failed"
+                        else:
+                            status = "completed"
+                        trace.status(name, status)
             except AttemptBudgetError as exc:
                 raise ProviderBatchBudgetStop(exc, completed) from None
             completed.append((provider.capability.name, result))

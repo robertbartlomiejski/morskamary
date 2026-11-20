@@ -47,3 +47,10 @@ def test_authoritative_shape_is_preserved() -> None:
     assert plan["logical_pages"] == 3
     assert plan["rows_per_page"] == 50
     assert plan["max_results_per_query"] == 150
+
+
+def test_three_provider_sampling_denominator() -> None:
+    plan = build_plan(_constraints(), "crossref,scopus,openalex", "3", "50")
+    assert plan["planned_query_provider_pairs"] == 360
+    assert plan["maximum_total_logical_requests"] == 1080
+    assert plan["maximum_work_occurrences"] == 54000

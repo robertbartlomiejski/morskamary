@@ -72,6 +72,8 @@ def build_plan(
         "logical_pages": pages,
         "rows_per_page": rows,
         "max_results_per_query": pages * rows,
+        "planned_query_provider_pairs": len(queries) * len(providers),
+        "maximum_work_occurrences": expected * rows,
         "expected_logical_requests": expected,
         "maximum_total_logical_requests": expected,
         "abort_on_budget_exceeded": True,

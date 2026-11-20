@@ -22,6 +22,8 @@ from datetime import datetime, timezone
 from email.utils import parsedate_to_datetime
 from typing import Any, Dict, List
 
+from src.scientific_sources.retrieval_trace import record_page
+
 from src.scientific_sources.attempt_budget import governed_urlopen
 from src.scientific_sources.base import BaseProvider
 from src.scientific_sources.models import (
@@ -462,6 +464,7 @@ class CrossrefProvider(BaseProvider):
                     return result, page_diagnostics
                 return result
             assert data is not None
+            record_page("crossref", logical_page, 1, safe_rows, offset, data)
             message = data.get("message", {})
             items = message.get("items", [])
             if not isinstance(items, list):

@@ -30,6 +30,8 @@ import urllib.request
 from datetime import datetime, timezone
 from typing import Any, Dict, List, Optional, cast
 
+from src.scientific_sources.retrieval_trace import record_page
+
 from src.scientific_sources.attempt_budget import governed_urlopen
 from src.scientific_sources.base import BaseProvider
 from src.scientific_sources.models import (
@@ -693,6 +695,7 @@ class ElsevierScopusProvider(BaseProvider):
                             page_diagnostics, safe_pages, safe_rows
                         )
                     return result
+                record_page("scopus", logical_page, chunk_index, count, start, payload)
                 items = payload.get("search-results", {}).get("entry", [])
                 if not isinstance(items, list):
                     items = []

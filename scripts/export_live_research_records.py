@@ -32,6 +32,7 @@ from __future__ import annotations
 
 import argparse
 import csv
+from contextlib import ExitStack
 import hashlib
 import inspect
 import json
@@ -54,6 +55,7 @@ from src.scientific_sources.attempt_budget import (  # noqa: E402
     AttemptBudgetError,
     require_governor,
 )
+from src.scientific_sources.retrieval_trace import RetrievalTrace  # noqa: E402
 from src.scientific_sources.models import (  # noqa: E402
     LiteratureRecord,
     ProviderResult,
@@ -1630,7 +1632,8 @@ def _persist_completed_results_before_budget_stop(
 def main() -> int:
     """Run the export; a physical-attempt budget stop is a non-zero failure."""
     try:
-        return _run_export()
+        with ExitStack() as stack:
+            return _run_export(stack)
     except AttemptBudgetError as exc:
         print(
             f"[ERROR] physical attempt budget stop: {exc.code}: {exc}",
@@ -1639,7 +1642,7 @@ def main() -> int:
         return 1
 
 
-def _run_export() -> int:
+def _run_export(stack: ExitStack) -> int:
     """Main entry point."""
     parser = argparse.ArgumentParser(
         description="Export live research records from configured providers"
@@ -1708,6 +1711,7 @@ def _run_export() -> int:
         help="Authoritative protocol used to validate scientific live projections.",
     )
 
+    parser.add_argument("--retrieval-trace", type=Path, help="New run-specific SQLite provenance file")
     args = parser.parse_args()
 
     # Resolve page-shape defaults.  When the operator passes --default-rows-per-page
@@ -1959,6 +1963,21 @@ def _run_export() -> int:
             for err in completeness_errors:
                 print(f"  - {err}", file=sys.stderr)
             return 1
+
+    if args.retrieval_trace:
+        planned_pairs: list[tuple[str, str, str, int]] = []
+        for sector_data in query_groups.values():
+            for query in sector_data["queries"]:
+                entry = constraints_by_query[query.lower()]
+                sampling = entry.get("sampling_strategy", {})
+                _, limit = _resolve_effective_sampling_request(
+                    declared_pages=int(sampling.get("pages", _default_logical_pages)),
+                    declared_rows_per_page=int(sampling.get("rows_per_page", _default_rows_per_page)),
+                    max_results=args.max_results_per_query,
+                )
+                planned_pairs.extend((str(entry["query_id"]), query, name, limit) for name in ordered_provider_names)
+        trace = RetrievalTrace(args.retrieval_trace, os.environ.get("CURRENT_RUN_ID", ""), planned_pairs, offline=offline)
+        stack.enter_context(trace.activate())
 
     # Storage for all results
     all_records: List[LiteratureRecord] = []

@@ -10,11 +10,12 @@ on:
         type: choice
         options:
           - hardening_dry_run
+          - openalex_pilot
           - exploratory_live
           - controlled_replication
           - publication_candidate
       live_run_authorization:
-        description: "For live modes enter AUTHORIZE_LIVE_PROVIDER_CALLS"
+        description: "OpenAlex pilot: AUTHORIZE_OPENALEX_G2_PILOT. Full live modes: AUTHORIZE_LIVE_PROVIDER_CALLS."
         required: false
         default: ""
         type: string
@@ -106,8 +107,50 @@ jobs:
           set -euo pipefail
           python scripts/validate_generated_outputs.py
 
+  pilot-rehearsal:
+    if: inputs.execution_mode == 'openalex_pilot'
+    uses: ./.github/workflows/mor25-pilot-rehearsal.yml
+
+  openalex-pilot:
+    needs: pilot-rehearsal
+    if: inputs.execution_mode == 'openalex_pilot'
+    runs-on: ubuntu-latest
+    environment: live-research
+    concurrency: mor25-openalex-port-pilot-v1
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          ref: ${{ github.sha }}
+          persist-credentials: false
+      - uses: actions/setup-python@v6
+        with:
+          python-version: "3.11"
+      - name: Install pilot dependencies
+        run: python -m pip install -e ".[dev]" "psycopg[binary]==3.3.9"
+      - name: Run the protected OpenAlex plan
+        env:
+          REQUESTED_AUTHORIZATION: ${{ inputs.live_run_authorization }}
+          MOR25_G2_APPROVED_SHA: ${{ vars.MOR25_G2_APPROVED_SHA }}
+          MOR25_G2_APPROVED_PLAN_SHA256: ${{ vars.MOR25_G2_APPROVED_PLAN_SHA256 }}
+          ATTEMPT_LEDGER_BACKEND: postgres
+          ATTEMPT_LEDGER_DSN: ${{ secrets.LIVE_ATTEMPT_LEDGER_RUNTIME_DSN }}
+          OPENALEX_API_KEY: ${{ secrets.OPENALEX_API_KEY }}
+          CURRENT_RUN_ID: ${{ github.run_id }}-${{ github.run_attempt }}
+        run: |
+          set -euo pipefail
+          test "$REQUESTED_AUTHORIZATION" = AUTHORIZE_OPENALEX_G2_PILOT
+          test "$(git rev-parse HEAD)" = "$GITHUB_SHA"
+          python -m scripts.mor25_openalex_pilot --execute --commit "$GITHUB_SHA" --output isolated-pilot
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: mor25-openalex-pilot-${{ github.run_id }}-${{ github.run_attempt }}
+          path: isolated-pilot/
+          if-no-files-found: warn
+          retention-days: 30
+
   live-analysis:
-    if: inputs.execution_mode != 'hardening_dry_run'
+    if: inputs.execution_mode != 'hardening_dry_run' && inputs.execution_mode != 'openalex_pilot'
     runs-on: ubuntu-latest
     environment: live-research
     env:
@@ -283,6 +326,7 @@ jobs:
             --default-logical-pages "$LOGICAL_PAGES" \
             --default-rows-per-page "$ROWS_PER_PAGE" \
             --output-dir outputs/research_sources \
+            --retrieval-trace "outputs/research_sources/retrieval-${CURRENT_RUN_ID}.sqlite3" \
             --offline false
 
       - name: Write sanitized physical HTTP-attempt audit
@@ -536,6 +580,7 @@ jobs:
             outputs/governance/physical_attempt_budget.json
             outputs/governance/physical_attempt_audit.json
             outputs/research_sources/query_execution_log.csv
+            outputs/research_sources/retrieval-${{ github.run_id }}-${{ github.run_attempt }}.sqlite3
             outputs/research_sources/query_protocol_constraints.json
             outputs/cumulative_database/novelty_gate_report.json
             outputs/cumulative_database/provider_sensitivity_analysis.json

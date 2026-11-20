@@ -35,6 +35,8 @@ from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any, Dict, Iterable, Iterator, List, Mapping, Optional, Sequence
 
+from src.scientific_sources.retrieval_trace import record_reservation
+
 BUDGET_SCHEMA_VERSION = "physical_attempt_budget/2"
 LEDGER_SCHEMA_VERSION = "physical_attempt_ledger/2"
 AUDIT_SCHEMA_VERSION = "physical_attempt_audit/2"
@@ -702,6 +704,7 @@ def governed_urlopen(
         raise BudgetConfigurationError("network route has no provider attribution")
     reservation = governor.ledger.reserve(label, purpose or _purpose_ctx.get())
     try:
+        record_reservation(reservation.attempt_id, label, reservation.purpose)
         response = _dispatch_request(request, timeout=timeout)
     except BaseException as exc:
         outcome, status = _classify(exc)
