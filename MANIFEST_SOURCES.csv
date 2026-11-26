@@ -38,6 +38,7 @@ AGENTS.md,text,,,,,,AGENTS,yes
 branch_reconciliation_2026-04-30.md,text,,,,,,branch_reconciliation_2026_04_30,yes
 CHANGELOG.txt,governance,,,,,,CHANGELOG,yes
 CITATION.txt,governance,,,,,,CITATION,yes
+CLAUDE.md,text,,,,,,CLAUDE,yes
 cloudbuild.live.yaml,other,,,,,,cloudbuild_live,no
 cloudbuild.yaml,other,,,,,,cloudbuild,no
 compose.debug.yaml,other,,,,,,compose_debug,no
