@@ -551,6 +551,7 @@ def build_layer4(
     validation_decisions: Optional[Sequence[Mapping[str, Any]]] = None,
     competence_candidates: Optional[Sequence[Mapping[str, Any]]] = None,
     semantic_signals: Optional[Sequence[Mapping[str, Any]]] = None,
+    record_observations: Optional[Sequence[Mapping[str, Any]]] = None,
     output_dir: Union[str, Path],
     current_run_id: str = "",
     stats_dir: Optional[Union[str, Path]] = None,
@@ -738,6 +739,7 @@ def build_layer4(
             competence_candidates=competence_candidates,
             semantic_signals=semantic_signals,
             analysis_timestamp_utc=analysis_timestamp_utc,
+            record_observations=record_observations,
         )
     )
 
@@ -1674,11 +1676,97 @@ def _timestamp_on_or_before_cutoff(
     return value if parsed <= cutoff else ""
 
 
+def _index_record_observations(
+    observations: Optional[Sequence[Mapping[str, Any]]],
+) -> Dict[str, List[Tuple[datetime, str, str]]]:
+    """Index retained per-record observations as (instant, run_id, raw timestamp)."""
+    indexed: Dict[str, List[Tuple[datetime, str, str]]] = {}
+    for row in observations or ():
+        evidence_id = _lineage_row_id(row, "evidence_id")
+        run_id = _lineage_row_id(row, "run_id")
+        raw_at = _lineage_row_id(row, "observed_at_utc")
+        parsed = _parse_lineage_utc(raw_at)
+        if not evidence_id or not run_id or parsed is None:
+            raise DerivedAnalysisError(
+                "record observation history row is malformed: "
+                f"{evidence_id or '<missing evidence_id>'}"
+            )
+        indexed.setdefault(evidence_id, []).append((parsed, run_id, raw_at))
+    return indexed
+
+
+def _latest_observation_at_cutoff(
+    row: Mapping[str, Any],
+    cutoff: datetime,
+    observations: Mapping[str, List[Tuple[datetime, str, str]]],
+) -> Tuple[datetime, str, str]:
+    """Return the latest (instant, run_id, timestamp) observed on or before cutoff.
+
+    The retained ``latest_seen_*`` pair is used only when it already precedes
+    the cutoff.  Otherwise it was advanced by a later, unreviewed occurrence and
+    the reviewed-time value must come from retained observation history; the
+    timestamp and run ID are always taken together from one observation.
+    """
+    evidence_id = _lineage_row_id(row, "evidence_id")
+    latest_raw = _lineage_row_id(row, "latest_seen_at_utc")
+    latest_run = _lineage_row_id(row, "latest_seen_run_id")
+    latest_parsed = _parse_lineage_utc(latest_raw)
+    if latest_parsed is not None and latest_parsed <= cutoff and latest_run:
+        return latest_parsed, latest_run, latest_raw
+    candidates = [
+        item for item in observations.get(evidence_id, []) if item[0] <= cutoff
+    ]
+    if not candidates:
+        raise DerivedAnalysisError(
+            "accepted canonical lineage cannot reconstruct the latest "
+            f"observation at decision time without retained history: {evidence_id}"
+        )
+    return max(candidates, key=lambda item: (item[0], item[1]))
+
+
+def _validate_reviewed_fragment_observation(
+    fragment: Mapping[str, Any],
+    evidence: Mapping[str, Any],
+    observations: Mapping[str, List[Tuple[datetime, str, str]]],
+) -> None:
+    """Require a reviewed fragment to fall within or match retained observations."""
+    fragment_id = _lineage_row_id(fragment, "fragment_id")
+    evidence_id = _lineage_row_id(fragment, "evidence_id")
+    retrieved_at = _parse_lineage_utc(
+        fragment.get("source_retrieved_at_utc")
+    )
+    first_at = _parse_lineage_utc(evidence.get("first_seen_at_utc"))
+    latest_at = _parse_lineage_utc(evidence.get("latest_seen_at_utc"))
+    if (
+        retrieved_at is None
+        or first_at is None
+        or latest_at is None
+        or not first_at <= retrieved_at <= latest_at
+    ):
+        raise DerivedAnalysisError(
+            "accepted canonical lineage fragment retrieval is outside retained "
+            f"evidence observation endpoints: {fragment_id}"
+        )
+    evidence_observations = observations.get(evidence_id, [])
+    if evidence_observations and not any(
+        observed_at == retrieved_at
+        and run_id == _lineage_row_id(fragment, "run_id")
+        for observed_at, run_id, _raw_timestamp in evidence_observations
+    ):
+        raise DerivedAnalysisError(
+            "accepted canonical lineage fragment retrieval does not match "
+            f"retained evidence observation history: {fragment_id}"
+        )
+
+
 def _accepted_lineage_snapshot_metrics(
-    evidence: List[Mapping[str, Any]], decision_at_utc: str
+    evidence: List[Mapping[str, Any]],
+    decision_at_utc: str,
+    observations: Optional[Mapping[str, List[Tuple[datetime, str, str]]]] = None,
 ) -> Dict[str, Any]:
     """Freeze accepted-lineage metrics to evidence retained at decision time."""
     cutoff = _decision_cutoff_timestamp(decision_at_utc)
+    history = observations or {}
     snapshot_rows = [
         row
         for row in evidence
@@ -1696,33 +1784,21 @@ def _accepted_lineage_snapshot_metrics(
         (_lineage_row_id(row, "first_seen_run_id") for row in snapshot_rows),
         default="",
     )
-    latest_run = max(
-        (
-            _lineage_row_id(row, "latest_seen_run_id")
-            if _timestamp_on_or_before_cutoff(row, "latest_seen_at_utc", cutoff)
-            else _lineage_row_id(row, "first_seen_run_id")
-            for row in snapshot_rows
-        ),
-        default="",
-    )
     first_at = min(
         (_lineage_row_id(row, "first_seen_at_utc") for row in snapshot_rows),
         default="",
     )
-    latest_at = max(
-        (
-            _timestamp_on_or_before_cutoff(row, "latest_seen_at_utc", cutoff)
-            or _lineage_row_id(row, "first_seen_at_utc")
-            for row in snapshot_rows
-        ),
-        default="",
+    latest = max(
+        (_latest_observation_at_cutoff(row, cutoff, history) for row in snapshot_rows),
+        key=lambda item: (item[0], item[1]),
+        default=None,
     )
     return {
         "providers": providers,
         "first_run": first_run,
-        "latest_run": latest_run,
+        "latest_run": latest[1] if latest else "",
         "first_at": first_at,
-        "latest_at": latest_at,
+        "latest_at": latest[2] if latest else "",
         "occurrence_count": len(snapshot_rows),
     }
 
@@ -1737,6 +1813,7 @@ def _build_accepted_canonical_lineage_demands(
     competence_candidates: Optional[Sequence[Mapping[str, Any]]],
     semantic_signals: Optional[Sequence[Mapping[str, Any]]],
     analysis_timestamp_utc: Optional[str],
+    record_observations: Optional[Sequence[Mapping[str, Any]]] = None,
 ) -> List[DerivedCompetenceDemand]:
     """Emit reviewed canonical demands only from a complete schema-v2 chain.
 
@@ -1751,6 +1828,7 @@ def _build_accepted_canonical_lineage_demands(
     decision_rows = list(validation_decisions or ())
     candidate_rows = list(competence_candidates or ())
     signal_rows = list(semantic_signals or ())
+    observation_index = _index_record_observations(record_observations)
 
     if not any(
         (
@@ -2245,14 +2323,20 @@ def _build_accepted_canonical_lineage_demands(
                 f"database built_at_utc: {decision_id}"
             )
         for fragment_id in decision_fragment_ids:
+            fragment = fragments_by_id[fragment_id]
             retrieved_at = _parse_lineage_utc(
-                fragments_by_id[fragment_id].get("source_retrieved_at_utc")
+                fragment.get("source_retrieved_at_utc")
             )
             if retrieved_at is None or retrieved_at > decision_at:
                 raise DerivedAnalysisError(
                     "accepted canonical lineage decision predates retained "
                     f"evidence retrieval: {decision_id}"
                 )
+            _validate_reviewed_fragment_observation(
+                fragment,
+                evidence_by_id[candidate_evidence_id],
+                observation_index,
+            )
         if (
             set(_split_list(decision.get("evidence_ids")))
             != {candidate_evidence_id}
@@ -2553,6 +2637,7 @@ def _build_accepted_canonical_lineage_demands(
         snapshot_metrics = _accepted_lineage_snapshot_metrics(
             evidence,
             _lineage_row_id(lineage_reviewed_decision, "decision_at_utc"),
+            observation_index,
         )
         providers = snapshot_metrics["providers"]
         query_families = sorted(

@@ -244,6 +244,17 @@ jobs:
           MORSKAMARY_CUMULATIVE_DATABASE_DIR: outputs/cumulative_database
         run: python scripts/validate_generated_outputs.py
 
+      - name: Stage static baseline for artifact upload
+        shell: bash
+        env:
+          STATIC_COMPARE_ROOT: ${{ runner.temp }}/full-analysis-static-baseline
+        run: |
+          set -euo pipefail
+          if [[ -d "$STATIC_COMPARE_ROOT" ]]; then
+            mkdir -p diagnostics/first-static-run
+            cp -R "$STATIC_COMPARE_ROOT/." diagnostics/first-static-run/
+          fi
+
       - name: Upload analysis outputs
         if: github.event_name == 'workflow_dispatch' || (github.event_name == 'push' && github.ref == 'refs/heads/main')
         uses: actions/upload-artifact@v4
@@ -252,4 +263,5 @@ jobs:
           path: |
             outputs/
             data/derived/
+            diagnostics/first-static-run/
           retention-days: 30

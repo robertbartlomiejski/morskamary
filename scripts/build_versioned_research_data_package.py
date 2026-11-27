@@ -97,6 +97,7 @@ SCHEMA_V2_SUPPLEMENTARY_OUTPUT_NAMES = {
     "evidence_records": "schema_v2_supporting_evidence_records",
 }
 SCHEMA_V2_SOURCE_DIRECTORY = "outputs/cumulative_database"
+OBSERVATION_TIMELINE_FILE = "evidence_observations.jsonl"
 SCHEMA_V2_SCHEMA_FILENAMES: tuple[str, ...] = tuple(
     f"{entity_name}.schema.json" for entity_name in SCHEMA_V2_ENTITY_NAMES
 )
@@ -303,6 +304,45 @@ def _read_schema_v2_jsonl(
             continue
         rows.append(payload)
     return rows, errors
+
+
+def _validate_observation_timeline(path: Path) -> list[str]:
+    """Require a non-empty, parseable retained observation timeline."""
+    if not path.is_file():
+        return [f"missing_observation_timeline:{path.name}"]
+    try:
+        lines = path.read_text(encoding="utf-8").splitlines()
+    except (OSError, UnicodeDecodeError) as exc:
+        return [f"unreadable_observation_timeline:{path.name}:{exc}"]
+    errors: list[str] = []
+    row_count = 0
+    for line_number, line in enumerate(lines, start=1):
+        if not line.strip():
+            continue
+        try:
+            payload = json.loads(
+                line, parse_constant=_reject_non_finite_json_constant
+            )
+        except json.JSONDecodeError:
+            errors.append(
+                f"malformed_jsonl:{path.name}:L{line_number}"
+            )
+            continue
+        except ValueError:
+            errors.append(
+                f"nonfinite_jsonl_number:{path.name}:L{line_number}"
+            )
+            continue
+        if not isinstance(payload, dict):
+            errors.append(f"jsonl_not_object:{path.name}:L{line_number}")
+            continue
+        if _contains_non_finite_number(payload):
+            errors.append(f"nonfinite_jsonl_number:{path.name}:L{line_number}")
+            continue
+        row_count += 1
+    if not row_count and not errors:
+        errors.append(f"empty_jsonl:{path.name}")
+    return errors
 
 
 def _write_csv(path: Path, rows: list[dict[str, Any]]) -> None:
@@ -1796,6 +1836,9 @@ REQUIRED_SCHEMA_V2_FILES: tuple[str, ...] = tuple(
     for entity_name in SCHEMA_V2_ENTITY_NAMES
     for suffix in ("csv", "jsonl")
 )
+REQUIRED_OBSERVATION_FILES: tuple[str, ...] = (
+    f"{SCHEMA_V2_SOURCE_DIRECTORY}/{OBSERVATION_TIMELINE_FILE}",
+)
 REQUIRED_SCHEMA_V2_CONTRACT_FILES: tuple[str, ...] = tuple(
     f"schemas/{schema_name}" for schema_name in SCHEMA_V2_SCHEMA_FILENAMES
 )
@@ -1827,6 +1870,7 @@ def _check_preflight(repo_root: Path, bootstrap_empty_manual_sources: bool) -> i
         *REQUIRED_CROSS_RUN_FILES,
         *REQUIRED_ANALYSIS_FILES,
         *REQUIRED_SCHEMA_V2_FILES,
+        *REQUIRED_OBSERVATION_FILES,
         *REQUIRED_SCHEMA_V2_CONTRACT_FILES,
         REQUIRED_SCHEMA_V2_MANIFEST_FILE,
     ):
@@ -1947,6 +1991,13 @@ def build_versioned_research_data_package(config: PackageConfig) -> int:
         schema_v2_jsonl_rows[entity_name] = jsonl_rows
         schema_v2_format_errors.extend(csv_errors)
         schema_v2_format_errors.extend(jsonl_errors)
+
+    observation_source = (
+        repo_root / SCHEMA_V2_SOURCE_DIRECTORY / OBSERVATION_TIMELINE_FILE
+    )
+    schema_v2_format_errors.extend(
+        _validate_observation_timeline(observation_source)
+    )
 
     runs_rows: list[dict[str, Any]] = []
     for row in cross_run_summary:
@@ -2380,6 +2431,11 @@ def build_versioned_research_data_package(config: PackageConfig) -> int:
                 supp_jsonl,
                 package_dir / "data" / "jsonl" / f"{output_name}.jsonl",
             )
+
+    shutil.copyfile(
+        observation_source,
+        package_dir / "data" / "jsonl" / OBSERVATION_TIMELINE_FILE,
+    )
 
     variable_labels, value_labels = _load_variable_and_value_labels(schema_dir)
     variable_labels = _merge_label_rows(

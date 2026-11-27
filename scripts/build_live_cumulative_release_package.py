@@ -281,6 +281,7 @@ JSONL_FILES = (
     "competence_demand_signals.jsonl",
     "hypothesis_semantic_fragments.jsonl",
     "derived_competence_demands.jsonl",
+    "evidence_observations.jsonl",
 )
 
 ALLOW_EMPTY_JSONL = {

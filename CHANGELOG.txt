@@ -1692,3 +1692,12 @@ PR #270 follow-up completion hardening
 - Restrict inferential dimensions to non-zero margins while retaining all zero cells descriptively.
 
 PR #270 review-address pass: reinforce corpus-screening interpretation boundaries, add explicit `screening_validation_state` flags to screening rows, and strengthen external-comparison provenance labels/consumer read-order guidance.
+
+2026-11-19
+Change type fix
+Scope pipeline
+Files affected .github/workflows/full-analysis.yml, scripts/build_live_cumulative_release_package.py, scripts/build_versioned_research_data_package.py, src/scientific_sources/derived_competence_analysis.py, tests/test_ci_workflow.py, tests/test_live_cumulative_release_package.py, tests/test_build_versioned_research_data_package.py, tests/test_derived_competence_analysis.py, tests/test_e2e_checksum_pipeline.py
+Summary Freeze accepted-lineage observations at the decision cutoff, validate reviewed fragments against retained endpoints/history, preserve validated observation timelines in both research package formats, and include the first static baseline in Full Analysis diagnostics.
+Reason Review findings on PR #308 (issue #310) and PR #311 identified post-decision timestamp drift, missing observation-history package handling, and incomplete static-run diagnostics.
+Impact Package builds fail closed for absent or malformed timelines, and reviewed fragments must match retained observations when available or fall within retained endpoints. Production Layer 4 wiring to the observation timeline remains dependent on PR #308; keep this PR blocked until the timeline is passed to build_layer4.
+Quality checks pytest tests/ (1906 passed), flake8, mypy, generated-output validation, and run-archive integrity validation passed.
