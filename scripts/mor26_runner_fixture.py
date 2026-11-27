@@ -65,6 +65,57 @@ def seed(approval, auth_dsn: str) -> None:
             )
 
 
+def runtime_privileges(dsn: str, acquisition_id: str) -> dict:
+    """Exercise the runtime login on runner B's own fixture, with rollback."""
+    driver = importlib.import_module("psycopg")
+    key = (acquisition_id, "fixture-only")
+    probes = {
+        "create_budget": (
+            "INSERT INTO mor26_private.authorizations"
+            " (acquisition_id,budget_id,schema_version,budget_sha256,"
+            " maximum_total_physical_attempts,provider_ceilings_json)"
+            " VALUES (%s,%s || '-privilege-check','physical_attempt_ledger/2',"
+            " repeat('0',64),0,'{}'::jsonb)"
+        ),
+        "increase_budget": (
+            "UPDATE mor26_private.authorizations SET maximum_total_physical_attempts"
+            " = maximum_total_physical_attempts + 1 WHERE acquisition_id=%s AND budget_id=%s"
+        ),
+        "delete_attempt": (
+            "DELETE FROM mor26_private.attempts WHERE acquisition_id=%s AND budget_id=%s AND seq=1"
+        ),
+    }
+    denials = {}
+    try:
+        with driver.connect(dsn, connect_timeout=5) as conn, conn.transaction(force_rollback=True):
+            conn.execute("SET LOCAL statement_timeout = '10s'")
+            version, matches_login, active_tables = conn.execute(
+                "SELECT current_setting('server_version_num')::integer,"
+                " session_user = 'mor26_runtime_login' AND current_user = session_user,"
+                " (SELECT count(*) FROM unnest(ARRAY['mor26_private.authorizations',"
+                " 'mor26_private.attempts','mor26_private.refusals','mor26_private.rendezvous']) t(rel)"
+                " WHERE row_security_active(t.rel::regclass))"
+            ).fetchone()
+            if active_tables != 4:
+                raise RuntimeError("expected effective runtime RLS on four ledger tables")
+            for operation, sql in probes.items():
+                try:
+                    with conn.transaction(force_rollback=True):
+                        conn.execute(sql, key)
+                except driver.errors.InsufficientPrivilege:
+                    denials[operation] = "42501"
+                else:
+                    raise RuntimeError(f"missing runtime privilege denial: {operation}")
+    except driver.Error as exc:
+        raise RuntimeError(f"runtime privilege check failed (SQLSTATE {exc.sqlstate})") from None
+    return {
+        "server_version_num": version,
+        "matches_mor26_runtime_login": matches_login,
+        "rls_active_tables": active_tables,
+        "denied_sqlstates": denials,
+    }
+
+
 def _outage_result(acq: str, head: str) -> dict:
     approval = budget(acq, "outage-runner")
     fake_dispatches = 0
@@ -112,9 +163,8 @@ def run(phase: str, acq: str, head: str) -> dict:
         seed(budget(acq, "runner-a", "race"), authorizer)
         seed(budget(acq, "runner-a", "provider"), authorizer)
 
-    ledger = PostgresAttemptLedger(
-        os.environ.get("MOR26_ACCEPTANCE_RUNTIME_DSN", ""), approval
-    )
+    runtime_dsn = os.environ.get("MOR26_ACCEPTANCE_RUNTIME_DSN", "")
+    ledger = PostgresAttemptLedger(runtime_dsn, approval)
     ledger.initialize()
     before = len(ledger.snapshot()["attempts"])
     grants = 0
@@ -129,8 +179,9 @@ def run(phase: str, acq: str, head: str) -> dict:
     elif phase == "b":
         assert before == 3, "runner B must inherit N-K=4"
         for _ in range(4):
-            ledger.reserve("openalex", "acquisition")
+            reservation = ledger.reserve("openalex", "acquisition")
             grants += 1
+            ledger.complete(reservation, "success", 200)  # Fake transport outcome.
         try:
             ledger.reserve("openalex", "acquisition")
         except AttemptBudgetExhausted:
@@ -185,8 +236,15 @@ def run(phase: str, acq: str, head: str) -> dict:
 
     snap = ledger.snapshot()
     total = len(snap["attempts"])
+    evidence = {}
     if phase == "b":
         assert total == 7 and grants == 4
+        completed = sum(row[3] == "completed" for row in snap["attempts"])
+        assert completed == grants
+        evidence = {
+            "fake_completions": completed,
+            "runtime_privileges": runtime_privileges(runtime_dsn, acq),
+        }
     if phase == "race":
         assert total == 1
     if phase == "provider":
@@ -209,6 +267,7 @@ def run(phase: str, acq: str, head: str) -> dict:
         "provider_ceiling_denied": provider_denied if phase == "provider" else None,
         "unavailable_store_denied": None,
         "rendezvous_count": rendezvous_count if phase == "race" else None,
+        **evidence,
     }
 
 

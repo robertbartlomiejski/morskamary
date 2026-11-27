@@ -3,6 +3,8 @@ import copy
 import json
 import sqlite3
 from pathlib import Path
+from types import SimpleNamespace
+from unittest.mock import MagicMock
 
 import pytest
 
@@ -46,6 +48,43 @@ def test_stable_digest_ignores_workflow_provenance():
     a = _raw()
     b = {**a, "workflow_run_id": "runner-B", "run_attempt": 2}
     assert ab.parse_budget(a).sha256() == ab.parse_budget(b).sha256()
+
+
+@pytest.mark.parametrize("outcome", ["allowed", "denied", "other_error"])
+def test_runtime_privilege_evidence_requires_actual_denials(monkeypatch, outcome):
+    from scripts import mor26_runner_fixture as fixture
+
+    class DatabaseError(Exception):
+        sqlstate = "23505"
+
+    class InsufficientPrivilege(DatabaseError):
+        sqlstate = "42501"
+
+    conn = MagicMock()
+    driver = SimpleNamespace(
+        Error=DatabaseError, errors=SimpleNamespace(InsufficientPrivilege=InsufficientPrivilege),
+        connect=MagicMock(),
+    )
+    driver.connect.return_value.__enter__.return_value = conn
+    monkeypatch.setattr(fixture.importlib, "import_module", lambda name: driver)
+    role = MagicMock()
+    role.fetchone.return_value = (170012, True, 4)
+    conn.execute.side_effect = [None, role] + {
+        "denied": [InsufficientPrivilege()] * 3,
+        "allowed": [None],
+        "other_error": [DatabaseError()],
+    }[outcome]
+
+    if outcome == "denied":
+        result = fixture.runtime_privileges("fixture", "test")
+        assert result["denied_sqlstates"] == dict.fromkeys(
+            ("create_budget", "increase_budget", "delete_attempt"), "42501"
+        )
+    else:
+        message = "missing runtime privilege denial" if outcome == "allowed" else "SQLSTATE 23505"
+        with pytest.raises(RuntimeError, match=message):
+            fixture.runtime_privileges("fixture", "test")
+    assert all(c.kwargs == {"force_rollback": True} for c in conn.transaction.call_args_list)
 
 
 @pytest.mark.parametrize("payload", [

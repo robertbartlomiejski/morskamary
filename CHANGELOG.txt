@@ -19,6 +19,10 @@ Entries
 Unreleased
 Use this section for changes in progress that are not yet merged into the main branch. Move items to dated entries when merged.
 
+- 2026-11-28 (test: verify hosted MOR-26 runtime privileges after RLS deployment)
+  Files affected scripts/mor26_runner_fixture.py .github/workflows/mor26-runner-acceptance.yml tests/test_mor26_security_contract.py CHANGELOG.txt
+  Runner B completes four simulated dispatches and checks three rollback-only forbidden writes on its own fixture. The evidence includes effective row security, server version and PostgreSQL denial codes.
+
 - 2026-11-20 (add: trace individual acquisition responses and query occurrences, MOR-25)
   Files affected .github/workflows/mor25-pilot-rehearsal.yml scripts/mor25_openalex_pilot.py scripts/prepare_live_acquisition_plan.py scripts/export_live_research_records.py .github/workflows/full-live-analysis.yml src/scientific_sources/retrieval_trace.py src/scientific_sources/attempt_budget.py src/scientific_sources/source_registry.py src/scientific_sources/crossref.py src/scientific_sources/elsevier_scopus.py src/scientific_sources/openalex.py tests/test_retrieval_trace.py tests/test_prepare_live_acquisition_plan.py MANIFEST_SOURCES.csv CHANGELOG.txt
   Record query results, original page positions, shared work identities and reservation links in a run-specific retrieval database. Prepare a separately protected two-query OpenAlex pilot. Report the full three-provider scope as 360 planned pairs; keep the broad workflow freeze.

@@ -282,6 +282,12 @@ jobs:
           assert b["before"] == 3 and b["reserved_total"] == 7
           assert b["fake_dispatches"] == 4 and b["attempt_n_plus_1_denied"] is True
           assert b["refused_total"] == 1
+          assert b["fake_completions"] == 4
+          privileges = b["runtime_privileges"]
+          assert privileges["rls_active_tables"] == 4
+          assert privileges["denied_sqlstates"] == {
+              "create_budget": "42501", "increase_budget": "42501", "delete_attempt": "42501",
+          }
 
           assert race[0]["budget_sha256"] == race[1]["budget_sha256"]
           assert all(d["rendezvous_count"] == 2 for d in race)
