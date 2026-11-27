@@ -1,3 +1,27 @@
+2026-11-19 — address remaining PR #308 review findings
+- Stage the first static reproducibility run into failure diagnostics when it exists.
+- Require a present, parseable, checksummed evidence_observations.jsonl in both release packagers; absence or malformed lines fail before publication.
+- Fail closed in Layer 4 when a reviewed fragment is absent from retained observation history or outside the first/latest observation interval.
+
+2026-11-19 — preserve reviewed Layer-4 timestamps and tighten PR #308 diagnostics
+- Retain a checksummed observation timeline and pair each decision-time timestamp with its corresponding run ID.
+- Freeze accepted-demand provider diversity against the contributing decisions' fragment snapshots.
+- Classify semantic matches by containing sentence and advance the classifier identity to v5.
+- Capture regenerated PR outputs after the static reproducibility check, gated on successful snapshot preparation.
+
+2026-11-16 — close current scientific-validity debt inherited from historical PR #245
+- Aggregate multiple accepted reviewer decisions for one canonical competence without collapsing immutable per-decision lineage.
+- Derive provider diversity from reviewed fragment provenance and freeze accepted-demand metrics to reviewed snapshots.
+- Normalize equivalent CSV/JSONL scalar values before cross-projection parity checks.
+- Remove prior conventional package directory and ZIP before preflight; require supporting evidence-record projections fail closed.
+- Derive expected sector-axis contexts from immutable decision.fragment_ids rather than mutable candidate fragments.
+- Exclude review-required cross-axis overlap from substantive QMBD evidence and classify broad blue-planetaryism as a boundary case before generic no-signal.
+- Bind validation decisions to a SHA-256 over the full immutable decision + evidence/fragment/provenance snapshot and verify that hash before Layer-4 aggregation.
+- Derive schema-v2 analytical QMBD axis from retained evidence rather than retrieval/query targets; query targeting remains provenance only.
+- Retain deficit language such as "lacks digital skills" as review-required demand evidence rather than dropping it as negation.
+- The legacy QMBD gold-review group/code coupling fix is staged separately in PR #304.
+- This PR changes validation/measurement code and tests only; it does not rewrite retained empirical inputs, archives, or H1/H2/H3 outputs.
+
 CHANGELOG.txt
 
 Purpose
@@ -28,6 +52,14 @@ Unreleased
   Quality checks On candidate SHA ca7e8db (superseded by this review correction), PASS: python3 scripts/generate_manifest.py plus git diff --exit-code -- MANIFEST_SOURCES.csv; python3 scripts/changelog_guard.py --base-ref main; python -m flake8 src scripts tests run_full_analysis.py main.py; python -m mypy src scripts run_full_analysis.py main.py; CI pytest with coverage on Python 3.10, 3.11, and 3.12 (1,892 passed on each); Full Analysis; and CodeQL. Codecov upload reported a missing token but was non-blocking (fail_ci_if_error=false). No local checks or live/provider API calls were run; Supabase Preview was skipped. This changelog correction triggers a fresh exact-head validation.
 
 Use this section for changes in progress that are not yet merged into the main branch. Move items to dated entries when merged.
+
+- 2026-11-17 (fix: close six scientific-validity review findings for PR #308)
+  Change type fix
+  Scope schema-v2 semantic classification, reviewed Layer-4 lineage, and release validation
+  Files affected src/scientific_sources/schema_v2_identity.py src/scientific_sources/cumulative_scientific_database.py src/scientific_sources/derived_competence_analysis.py scripts/build_live_cumulative_release_package.py scripts/build_versioned_research_data_package.py tests/test_cumulative_scientific_database.py tests/test_derived_competence_analysis.py tests/test_validate_csv_bundle.py CHANGELOG.txt
+  Summary Advances the semantic classifier identity version, excludes retained unclassified fragments from assignment contexts, scopes reviewed provider metrics by demand context, verifies decision digests before analysis and publication, and caches retained-field axis classification per observation. Decisions bound to prior classifier identities require explicit migration or re-review.
+  Reason Closes six requested review findings concerning mixed candidate fragments, stale classifier approvals, context-specific provider evidence, immutable-decision integrity, repeated classification work, and filtered-out tampered decisions.
+  Impact No retained empirical inputs, run archives, or hypothesis results are rewritten. Existing approvals for candidates reclassified under the new version must be explicitly migrated or reviewed again; the four canonical QMBD identities and display codes remain unchanged.
 
 - 2026-11-13 (fix: explicit authorization for research-pipeline provider smoke)
   Change type fix

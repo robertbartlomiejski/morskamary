@@ -28,6 +28,12 @@ from typing import Any, Dict, List
 
 import pytest
 
+from src.scientific_sources.schema_v2_identity import (
+    make_assignment_id,
+    make_decision_content_hash,
+)
+
+from src.scientific_sources.cumulative_scientific_database import CLASSIFIER_VERSION
 from src.scientific_sources.derived_competence_analysis import (
     ALLOWED_DEMAND_STATUS,
     DERIVED_DEMAND_COLUMNS,
@@ -119,6 +125,19 @@ def _accepted_canonical_lineage_rows() -> Dict[str, List[Dict[str, Any]]]:
     )
     provenance_id = "provenance:hydrosocial:001"
     definition = "Apply hydrosocial governance in desalination operations."
+    decision_content_sha256 = make_decision_content_hash(
+        validation_decision_id=decision_id,
+        decision_status="accepted",
+        target_candidate_id=candidate_id,
+        canonical_label=canonical_label,
+        reviewer_identifier="reviewer-hydro-001",
+        decision_rationale="Accepted retained hydrosocial lineage.",
+        decision_at_utc="2026-07-10T00:00:00+00:00",
+        evidence_ids=evidence_id,
+        fragment_ids=fragment_id,
+        source_provenance_ids=provenance_id,
+        superseded_validation_decision_id="",
+    )
     return {
         "evidence_records": [
             {
@@ -141,6 +160,7 @@ def _accepted_canonical_lineage_rows() -> Dict[str, List[Dict[str, Any]]]:
                 "evidence_id": evidence_id,
                 "run_id": "RUN-HYDRO-001",
                 "source_provenance_id": provenance_id,
+                "source_provider": "crossref",
                 "source_retrieved_at_utc": "2026-07-01T00:00:00+00:00",
             }
         ],
@@ -161,6 +181,7 @@ def _accepted_canonical_lineage_rows() -> Dict[str, List[Dict[str, Any]]]:
                 "matched_phrase": "governance",
                 "confidence_score": 0.9,
                 "manual_review_status": "auto_accepted",
+                "classifier_version": CLASSIFIER_VERSION,
                 "validity_warning": "",
             }
         ],
@@ -192,6 +213,7 @@ def _accepted_canonical_lineage_rows() -> Dict[str, List[Dict[str, Any]]]:
                 "evidence_ids": evidence_id,
                 "fragment_ids": fragment_id,
                 "source_provenance_ids": provenance_id,
+                "decision_content_sha256": decision_content_sha256,
                 "superseded_validation_decision_id": "",
             }
         ],
@@ -235,8 +257,27 @@ def _build_accepted_canonical_lineage(
         validation_decisions=rows["validation_decisions"],
         competence_candidates=rows["competence_candidates"],
         semantic_signals=rows["semantic_signals"],
+        evidence_observations=rows.get("evidence_observations"),
         output_dir=tmp_path / "layer4",
         analysis_timestamp_utc="2026-07-12T00:00:00+00:00",
+    )
+
+
+def _rehash_decision(decision: Dict[str, Any]) -> None:
+    decision["decision_content_sha256"] = make_decision_content_hash(
+        validation_decision_id=str(decision.get("validation_decision_id") or ""),
+        decision_status=str(decision.get("decision_status") or ""),
+        target_candidate_id=str(decision.get("target_candidate_id") or ""),
+        canonical_label=str(decision.get("canonical_label") or ""),
+        reviewer_identifier=str(decision.get("reviewer") or ""),
+        decision_rationale=str(decision.get("decision_reason") or ""),
+        decision_at_utc=str(decision.get("decision_at_utc") or ""),
+        evidence_ids=str(decision.get("evidence_ids") or ""),
+        fragment_ids=str(decision.get("fragment_ids") or ""),
+        source_provenance_ids=str(decision.get("source_provenance_ids") or ""),
+        superseded_validation_decision_id=str(
+            decision.get("superseded_validation_decision_id") or ""
+        ),
     )
 
 
@@ -273,25 +314,158 @@ def test_layer4_emits_only_complete_accepted_canonical_lineage(
     assert demand.manual_review_status == "manually_reviewed"
 
 
+def test_layer4_requires_re_review_after_classifier_version_change(
+    tmp_path: Path,
+) -> None:
+    rows = _accepted_canonical_lineage_rows()
+    rows["semantic_signals"][0]["classifier_version"] = (
+        "cumulative-db-semantic-v3"
+    )
+
+    with pytest.raises(DerivedAnalysisError, match="requires explicit migration or re-review"):
+        _build_accepted_canonical_lineage(tmp_path, rows)
+
+
 def test_layer4_freezes_provider_metrics_to_reviewed_occurrences(
     tmp_path: Path,
 ) -> None:
     rows = _accepted_canonical_lineage_rows()
     evidence = rows["evidence_records"][0]
-    evidence["providers_seen"] = "crossref|openalex"
-    evidence["provider_source"] = "crossref"
-    evidence["latest_seen_run_id"] = "RUN-HYDRO-999"
-    evidence["latest_seen_at_utc"] = "2026-07-20T00:00:00+00:00"
-    evidence["record_recurrence_count"] = 5
+    first_at = "2026-07-01T00:00:00+00:00"
+    latest_at = "2026-07-05T00:00:00+00:00"
+    evidence.update(
+        first_seen_run_id="RUN-Z",
+        latest_seen_run_id="RUN-A",
+        latest_seen_at_utc=latest_at,
+        record_recurrence_count=2,
+    )
+    rows["evidence_observations"] = [
+        {"evidence_id": evidence["evidence_id"], "run_id": "RUN-Z", "observed_at_utc": first_at},
+        {"evidence_id": evidence["evidence_id"], "run_id": "RUN-A", "observed_at_utc": latest_at},
+    ]
+    rows["evidence_fragments"][0]["run_id"] = "RUN-UNOBSERVED"
+    with pytest.raises(DerivedAnalysisError, match="observation history"):
+        _build_accepted_canonical_lineage(tmp_path / "unobserved", rows)
+    rows["evidence_fragments"][0]["run_id"] = "RUN-Z"
+    before = _build_accepted_canonical_lineage(tmp_path / "before", rows).derived_demands[0]
 
-    result = _build_accepted_canonical_lineage(tmp_path, rows)
+    after_at = "2026-07-20T00:00:00+00:00"
+    evidence.update(
+        providers_seen="crossref|openalex",
+        latest_seen_run_id="RUN-Q",
+        latest_seen_at_utc=after_at,
+        record_recurrence_count=3,
+    )
+    rows["evidence_observations"].append(
+        {"evidence_id": evidence["evidence_id"], "run_id": "RUN-Q", "observed_at_utc": after_at}
+    )
+    demand = _build_accepted_canonical_lineage(tmp_path / "after", rows).derived_demands[0]
 
-    demand = result.derived_demands[0]
     assert demand.provider_count == 1
     assert demand.providers_seen == "crossref"
+    assert demand.provider_diversity_score == before.provider_diversity_score == 1.0
+    assert demand.demand_strength_score == before.demand_strength_score
     assert demand.record_occurrence_count == 1
-    assert demand.latest_seen_run_id == "RUN-HYDRO-001"
-    assert demand.latest_seen_at_utc == "2026-07-01T00:00:00+00:00"
+    assert (demand.first_seen_at_utc, demand.first_seen_run_id) == (first_at, "RUN-Z")
+    assert (demand.latest_seen_at_utc, demand.latest_seen_run_id) == (latest_at, "RUN-A")
+    assert demand.latest_seen_at_utc == before.latest_seen_at_utc
+
+    del rows["evidence_observations"]
+    with pytest.raises(DerivedAnalysisError, match="requires retained observation history"):
+        _build_accepted_canonical_lineage(tmp_path / "missing-history", rows)
+
+
+def test_layer4_provider_metrics_are_scoped_to_each_demand_context(
+    tmp_path: Path,
+) -> None:
+    rows = _accepted_canonical_lineage_rows()
+    fragment = dict(rows["evidence_fragments"][0])
+    signal = dict(rows["semantic_signals"][0])
+    assignment = dict(rows["sector_competence_assignments"][0])
+    second_fragment_id = "fragment:" + "2" * 64
+    second_provenance_id = "provenance:scopus-occurrence"
+    second_fragment = {
+        **fragment,
+        "fragment_id": second_fragment_id,
+        "source_provenance_id": second_provenance_id,
+        "source_provider": "scopus",
+        "run_id": "RUN-SCOPUS-001",
+        "source_retrieved_at_utc": "2026-07-02T00:00:00+00:00",
+    }
+    second_signal = {
+        **signal,
+        "fragment_id": second_fragment_id,
+        "source_provenance_id": second_provenance_id,
+        "run_id": "RUN-SCOPUS-001",
+        "sector": "ports",
+        "axis_group": "MARITIME",
+        "axis_code": "T",
+    }
+    rows["evidence_fragments"].append(second_fragment)
+    rows["semantic_signals"].append(second_signal)
+    rows["competence_candidates"][0]["fragment_ids"] = "|".join(
+        sorted((str(fragment["fragment_id"]), second_fragment_id))
+    )
+    rows["competence_candidates"][0]["source_provenance_ids"] = "|".join(
+        sorted((str(fragment["source_provenance_id"]), second_provenance_id))
+    )
+
+    decision = rows["validation_decisions"][0]
+    decision["fragment_ids"] = rows["competence_candidates"][0]["fragment_ids"]
+    decision["source_provenance_ids"] = (
+        rows["competence_candidates"][0]["source_provenance_ids"]
+    )
+    decision["decision_content_sha256"] = make_decision_content_hash(
+        validation_decision_id=str(decision["validation_decision_id"]),
+        decision_status=str(decision["decision_status"]),
+        target_candidate_id=str(decision["target_candidate_id"]),
+        canonical_label=str(decision["canonical_label"]),
+        reviewer_identifier=str(decision["reviewer"]),
+        decision_rationale=str(decision["decision_reason"]),
+        decision_at_utc=str(decision["decision_at_utc"]),
+        evidence_ids=str(decision["evidence_ids"]),
+        fragment_ids=str(decision["fragment_ids"]),
+        source_provenance_ids=str(decision["source_provenance_ids"]),
+        superseded_validation_decision_id=str(
+            decision["superseded_validation_decision_id"]
+        ),
+    )
+
+    second_assignment = {
+        **assignment,
+        "assignment_id": "",
+        "sector": "ports",
+        "axis_group": "MARITIME",
+        "axis_code": "T",
+    }
+    second_assignment["assignment_id"] = make_assignment_id(
+        canonical_competence_id=str(second_assignment["canonical_competence_id"]),
+        validation_decision_id=str(second_assignment["validation_decision_id"]),
+        sector="ports",
+        axis_group="MARITIME",
+        axis_code="T",
+    )
+    rows["sector_competence_assignments"].append(second_assignment)
+
+    with pytest.raises(DerivedAnalysisError, match="observation interval"):
+        _build_accepted_canonical_lineage(tmp_path / "mismatch", rows)
+
+    rows["evidence_records"][0].update(
+        latest_seen_at_utc="2026-07-02T00:00:00+00:00",
+        latest_seen_run_id="RUN-SCOPUS-001",
+        record_recurrence_count=2,
+    )
+    result = _build_accepted_canonical_lineage(tmp_path, rows)
+
+    demands = {
+        (demand.sector, demand.axis_group): demand
+        for demand in result.derived_demands
+    }
+    assert demands[("desalination", "HYDRONIZATION")].providers_seen == "crossref"
+    assert demands[("desalination", "HYDRONIZATION")].provider_count == 1
+    assert demands[("ports", "MARITIME")].providers_seen == "scopus"
+    assert demands[("ports", "MARITIME")].provider_count == 1
+    assert {demand.provider_diversity_score for demand in demands.values()} == {0.5}
 
 
 @pytest.mark.parametrize(
@@ -371,6 +545,7 @@ def test_layer4_rejects_incomplete_or_noncanonical_accepted_lineage(
     else:  # pragma: no cover - keeps parametrization exhaustive.
         raise AssertionError(f"unexpected mutation: {mutation}")
 
+    _rehash_decision(decision)
     with pytest.raises(DerivedAnalysisError, match=message):
         _build_accepted_canonical_lineage(tmp_path, rows)
 
@@ -381,6 +556,7 @@ def test_layer4_rejects_decision_after_built_at(tmp_path: Path) -> None:
     # Base fixture: decision_at_utc=2026-07-10, built_at=2026-07-12 → passes.
     # Make decision AFTER built_at to trigger the guard:
     rows["validation_decisions"][0]["decision_at_utc"] = "2026-07-15T00:00:00+00:00"
+    _rehash_decision(rows["validation_decisions"][0])
     with pytest.raises(DerivedAnalysisError, match="dated after the database built_at_utc"):
         _build_accepted_canonical_lineage(tmp_path, rows)
 
@@ -1698,4 +1874,76 @@ def test_layer4_rejects_forged_assignment_id(tmp_path: Path) -> None:
     rows["sector_competence_assignments"][0]["assignment_id"] = forged_assignment_id
 
     with pytest.raises(DerivedAnalysisError, match="assignment_id does not match recomputed"):
+        _build_accepted_canonical_lineage(tmp_path, rows)
+
+
+def test_layer4_rejects_mutated_decision_snapshot_with_stale_content_hash(
+    tmp_path: Path,
+) -> None:
+    rows = _accepted_canonical_lineage_rows()
+    decision = rows["validation_decisions"][0]
+    original_hash = decision["decision_content_sha256"]
+    decision["decision_reason"] = "Mutated after the accepted review snapshot."
+    decision["decision_content_sha256"] = original_hash
+
+    with pytest.raises(
+        DerivedAnalysisError,
+        match="decision content hash does not match its immutable snapshot",
+    ):
+        _build_accepted_canonical_lineage(tmp_path, rows)
+
+
+@pytest.mark.parametrize(
+    "decision_status", ("rejected", "review_required", "superseded")
+)
+def test_layer4_checks_decision_digest_before_status_filtering(
+    tmp_path: Path,
+    decision_status: str,
+) -> None:
+    rows = _accepted_canonical_lineage_rows()
+    decision = rows["validation_decisions"][0]
+    decision["decision_status"] = decision_status
+    decision["decision_reason"] = "Changed rationale with stale digest."
+    rows["canonical_competences"] = []
+    rows["sector_competence_assignments"] = []
+
+    with pytest.raises(DerivedAnalysisError, match="decision content hash"):
+        _build_accepted_canonical_lineage(tmp_path, rows)
+
+
+def test_layer4_checks_superseded_decision_digest_before_filtering(
+    tmp_path: Path,
+) -> None:
+    rows = _accepted_canonical_lineage_rows()
+    previous = rows["validation_decisions"][0]
+    previous["decision_reason"] = "Tampered superseded review."
+    current = dict(previous)
+    current.update(
+        {
+            "validation_decision_id": "decision:hydrosocial:002",
+            "decision_reason": "Replacement review.",
+            "decision_at_utc": "2026-07-11T00:00:00+00:00",
+            "superseded_validation_decision_id": previous[
+                "validation_decision_id"
+            ],
+        }
+    )
+    current["decision_content_sha256"] = make_decision_content_hash(
+        validation_decision_id=str(current["validation_decision_id"]),
+        decision_status=str(current["decision_status"]),
+        target_candidate_id=str(current["target_candidate_id"]),
+        canonical_label=str(current["canonical_label"]),
+        reviewer_identifier=str(current["reviewer"]),
+        decision_rationale=str(current["decision_reason"]),
+        decision_at_utc=str(current["decision_at_utc"]),
+        evidence_ids=str(current["evidence_ids"]),
+        fragment_ids=str(current["fragment_ids"]),
+        source_provenance_ids=str(current["source_provenance_ids"]),
+        superseded_validation_decision_id=str(
+            current["superseded_validation_decision_id"]
+        ),
+    )
+    rows["validation_decisions"].append(current)
+
+    with pytest.raises(DerivedAnalysisError, match="decision content hash"):
         _build_accepted_canonical_lineage(tmp_path, rows)

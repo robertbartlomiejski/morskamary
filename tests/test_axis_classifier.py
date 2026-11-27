@@ -145,7 +145,7 @@ class TestAxisClassifier:
     def test_classify_context_collects_keyword_matches(self):
         """Matched keywords should be included in classify_context output."""
         classifier = AxisClassifier()
-        result = classifier.classify_context("Hydrosocial governance transitions.")
+        result = classifier.classify_context("Hydrosocial transitions.")
         assert result["axis"] == BlueDynamicsAxis.HYDRONIZATION.name
         assert "hydrosocial" in result["matched_keywords"]
 
@@ -399,9 +399,9 @@ class TestAxisClassifierInputValidation:
         assert result["matched_keywords"] == []
         assert result["confidence_score"] == 0.0
         assert result["manual_review_status"] == "review_required"
-        assert result["uncertainty_reason"] == "no_retained_axis_vocabulary_match"
-        assert result["uncertainty_typology"] == "no_signal"
-        assert result["review_path"] == "fail_closed_unclassified"
+        assert result["uncertainty_reason"] == "broad_blue_planetaryism_without_retained_axis_signal"
+        assert result["uncertainty_typology"] == "boundary_threshold"
+        assert result["review_path"] == "boundary_case_review"
         assert result["classifier_version"] == AxisClassifier.CLASSIFIER_VERSION
 
     def test_classify_context_tags_cross_axis_overlap_as_mediator_review(self):
@@ -414,3 +414,7 @@ class TestAxisClassifierInputValidation:
         assert result["manual_review_status"] == "review_required"
         assert result["uncertainty_typology"] == "cross_axis_mediator"
         assert result["review_path"] == "cross_axis_overlap_review"
+        assert result["axis"] == "UNCLASSIFIED"
+        assert result["axis_code"] == ""
+        assert result["matched_keywords"] == []
+        assert result["confidence_score"] == 0.0

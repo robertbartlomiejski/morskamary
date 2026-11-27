@@ -52,12 +52,16 @@ if str(_REPO_ROOT) not in sys.path:
 from jsonschema import Draft202012Validator  # noqa: E402
 from pypdf import PdfReader  # noqa: E402
 
+from src.scientific_sources.cumulative_scientific_database import (  # noqa: E402
+    EVIDENCE_OBSERVATIONS_JSONL,
+)
 from src.scientific_sources.publication_readiness import (  # noqa: E402
     aggregate_readiness,
     current_run_identity,
     derive_claim_boundary,
 )
 from src.scientific_sources.schema_v2_identity import (  # noqa: E402
+    decision_content_hash_matches as _decision_content_hash_matches_v2,
     make_assignment_id as _make_assignment_id_v2,
     make_candidate_id as _make_candidate_id_v2,
     make_canonical_competence_id as _make_canonical_competence_id_v2,
@@ -975,6 +979,11 @@ def _validate_schema_v2_foreign_keys(
         superseded_id = _identifier(
             decision.get("superseded_validation_decision_id")
         )
+        if not _decision_content_hash_matches_v2(decision):
+            errors.append(
+                "schema_v2_lineage_mismatch:"
+                f"{file_name}:L{line_number}:decision_content_sha256"
+            )
         if not superseded_id:
             continue
         if superseded_id == decision_id:
@@ -2369,6 +2378,7 @@ def main(argv: Optional[List[str]] = None) -> int:
     required_paths = [
         *(database_dir / name for name in CSV_FILES),
         *(database_dir / name for name in JSONL_FILES),
+        database_dir / EVIDENCE_OBSERVATIONS_JSONL,
         *(database_dir / name for name in DATABASE_METADATA_FILES),
         database_dir / "VARIABLE_LABELS.csv",
         database_dir / "VALUE_LABELS.csv",
@@ -2568,6 +2578,7 @@ def main(argv: Optional[List[str]] = None) -> int:
                 expected_checksum_refs = set(
                     list(CSV_FILES)
                     + list(JSONL_FILES)
+                    + [EVIDENCE_OBSERVATIONS_JSONL]
                     + [
                         n for n in DATABASE_METADATA_FILES
                         if not n.endswith(".sha256")
@@ -2692,6 +2703,12 @@ def main(argv: Optional[List[str]] = None) -> int:
         jsonl_rows[name] = rows
         jsonl_line_numbers[name] = line_numbers
         missing_required.extend(errors)
+    # The observation timeline is not a schema-v2 entity, but it must parse so
+    # Layer 4 cross-cutoff values stay reproducible from the package.
+    _, _, observation_errors = _load_jsonl_rows(
+        database_dir / EVIDENCE_OBSERVATIONS_JSONL
+    )
+    missing_required.extend(observation_errors)
 
     missing_required.extend(
         _validate_schema_v2_json_schema(
@@ -2884,8 +2901,8 @@ def main(argv: Optional[List[str]] = None) -> int:
         if blob is not None:
             entries.append((f"data/csv/{name}", blob))
 
-    # JSONL
-    for name in JSONL_FILES:
+    # JSONL, including the observation timeline when the source bundle has one.
+    for name in (*JSONL_FILES, EVIDENCE_OBSERVATIONS_JSONL):
         blob = _read_bytes_if_exists(database_dir / name)
         if blob is not None:
             entries.append((f"data/jsonl/{name}", blob))

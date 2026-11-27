@@ -40,6 +40,7 @@ cumulative_database_manifest.json
 _checksums.sha256
 evidence_records.csv
 evidence_records.jsonl
+evidence_observations.jsonl
 evidence_fragments.csv
 evidence_fragments.jsonl
 semantic_signals.csv
@@ -251,6 +252,14 @@ or partial lineage fails closed. Retained primary keys, foreign keys, and
 pipe-delimited reference snapshots must be exact, unpadded serializations, so
 published canonical provenance cannot be reconstructed from a normalized
 forgery.
+
+The checksummed `evidence_observations.jsonl` records the evidence ID, run ID
+and retrieval timestamp for each retained occurrence, including occurrences
+without a semantic match. Layer 4 selects observations through each decision's
+UTC cutoff and exports each first/latest timestamp with its own run ID. Older
+bundles can use their endpoints when those determine the result. An older
+bundle with insufficient history across the cutoff must be rebuilt from
+retained inputs.
 
 Legacy category-aggregate rows remain the population for Layer-4 descriptive
 statistics and Layer-5 `live_literature_demand_count`. The separate canonical

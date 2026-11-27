@@ -371,6 +371,8 @@ def _classify_sentence_contexts(
 
 def _sentence_classification_counts_as_evidence(item: Dict[str, Any]) -> bool:
     """Return True when a sentence-level classification contains positive axis evidence."""
+    if str(item.get("manual_review_status", "")).strip() == "review_required":
+        return False
     matched_keywords = item.get("matched_keywords", [])
     if isinstance(matched_keywords, list) and any(
         isinstance(keyword, str) and keyword.strip() for keyword in matched_keywords

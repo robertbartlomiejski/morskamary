@@ -46,6 +46,7 @@ from src.scientific_sources.cumulative_scientific_database import (
     EVIDENCE_FRAGMENTS_JSONL,
     EVIDENCE_RECORDS_CSV,
     EVIDENCE_RECORDS_JSONL,
+    EVIDENCE_OBSERVATIONS_JSONL,
     EVIDENCE_RECORD_COLUMNS,
     SECTOR_COMPETENCE_ASSIGNMENTS_CSV,
     SECTOR_COMPETENCE_ASSIGNMENTS_JSONL,
@@ -61,8 +62,8 @@ from src.scientific_sources.cumulative_scientific_database import (
     canonical_label_is_allowed,
 )
 from src.scientific_sources.derived_competence_analysis import (
+    DerivedAnalysisError,
     build_layer4,
-    build_layer5,
 )
 
 REPO_ROOT = Path(__file__).resolve().parents[1]
@@ -209,6 +210,7 @@ class TestBundleShape:
         expected = {
             EVIDENCE_RECORDS_CSV,
             EVIDENCE_RECORDS_JSONL,
+            EVIDENCE_OBSERVATIONS_JSONL,
             EVIDENCE_FRAGMENTS_CSV,
             EVIDENCE_FRAGMENTS_JSONL,
             SEMANTIC_SIGNALS_CSV,
@@ -843,14 +845,16 @@ class TestLayer1Binding:
             "10.1000/axis.t": "T",
         }
 
-    def test_axis_group_and_code_propagate_from_layer1_to_layer5(self, tmp_path: Path) -> None:
+    def test_query_target_does_not_assign_empirical_signal_axis(
+        self, tmp_path: Path
+    ) -> None:
         current = tmp_path / "outputs"
         live_runs = tmp_path / "live_runs"
         _write_current_run(
             current,
             [
                 {
-                    "title": "Marine governance competence and skills",
+                    "title": "Governance competence and skills",
                     "doi": "10.1000/axis.flow.1",
                     "provider": "Crossref",
                     "source_query": "axis flow query",
@@ -866,7 +870,7 @@ class TestLayer1Binding:
                     "query_id": "Q_AXIS_FLOW_001",
                     "sector_slug": "axis_flow_sector",
                     "sector_label": "Axis Flow Sector",
-                    "axis_target": "T",
+                    "axis_target": "M",
                     "axis_group": "MARINE",
                     "axis_code": "M",
                     "query_family": "core_sector",
@@ -891,25 +895,14 @@ class TestLayer1Binding:
             current_run_id="R1",
             built_at_utc=FROZEN_TS,
         )
-        layer4 = build_layer4(
-            evidence_records=[row.to_dict() for row in cumulative.evidence_records],
-            competence_signals=[row.to_dict() for row in cumulative.competence_demand_signals],
-            output_dir=tmp_path / "layer4_5",
-            current_run_id="R1",
-            analysis_timestamp_utc=FROZEN_TS,
-        )
-        layer5 = build_layer5(
-            derived_demands=layer4.derived_demands,
-            evidence_records=[row.to_dict() for row in cumulative.evidence_records],
-            output_dir=tmp_path / "layer4_5",
-            current_run_id="R1",
-            built_at_utc=FROZEN_TS,
-        )
-        assert layer4.derived_demands
-        assert layer5.learning_outcomes
-        assert layer4.derived_demands[0].axis_group == "MARINE"
-        assert layer4.derived_demands[0].axis_code == "M"
-        assert layer5.learning_outcomes[0].axis_group == "MARINE"
+        assert cumulative.semantic_signals
+        assert cumulative.competence_candidates
+        assert {row.axis_group for row in cumulative.semantic_signals} == {"OCEANIC"}
+        assert {row.axis_code for row in cumulative.semantic_signals} == {"O"}
+        assert {row.axis_group for row in cumulative.competence_candidates} == {
+            "OCEANIC"
+        }
+        assert all(row.axis_group != "MARINE" for row in cumulative.semantic_signals)
 
 
 # ---------------------------------------------------------------------------
@@ -1131,6 +1124,7 @@ class TestDeterminism:
         for name in (
             EVIDENCE_RECORDS_CSV,
             EVIDENCE_RECORDS_JSONL,
+            EVIDENCE_OBSERVATIONS_JSONL,
             COMPETENCE_DEMAND_SIGNALS_CSV,
             COMPETENCE_DEMAND_SIGNALS_JSONL,
             RUN_NOVELTY_METRICS_CSV,
@@ -2304,6 +2298,83 @@ def test_validation_decision_candidate_identity_persists_across_runs(
     assert len(recurring.sector_competence_assignments) == 1
 
 
+def test_classifier_version_change_requires_re_review_of_old_candidate_decisions(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    record = {
+        "title": "Hydrosocial digital skills",
+        "abstract": "Digital skills are needed.",
+        "doi": "10.1000/classifier-version-review",
+        "provider": "Crossref",
+        "source_query": BOUND_QUERY_TEXT,
+    }
+    current = tmp_path / "outputs"
+    _write_current_run(current, [record])
+
+    with monkeypatch.context() as old_classifier:
+        old_classifier.setattr(
+            database_module, "CLASSIFIER_VERSION", "cumulative-db-semantic-v3"
+        )
+        previous = build_cumulative_scientific_database(
+            current_run_dir=current,
+            output_dir=tmp_path / "previous",
+            protocol_path=PROTOCOL_PATH,
+            current_run_id="R1",
+            built_at_utc=FROZEN_TS,
+        )
+    previous_candidate = previous.competence_candidates[0]
+    stale_decision = {
+        "target_candidate_id": previous_candidate.candidate_id,
+        **_decision_snapshot(previous, previous_candidate.candidate_id),
+        "canonical_label": "Digital skills",
+        "decision_status": "accepted",
+        "reviewer": "reviewer-fixture-001",
+        "decision_at_utc": FROZEN_TS,
+        "decision_reason": "Accepted before classifier reclassification.",
+    }
+
+    current_classification = build_cumulative_scientific_database(
+        current_run_dir=current,
+        output_dir=tmp_path / "current-classification",
+        protocol_path=PROTOCOL_PATH,
+        current_run_id="R1",
+        built_at_utc=FROZEN_TS,
+    )
+    assert current_classification.competence_candidates[0].candidate_id != (
+        previous_candidate.candidate_id
+    )
+    with pytest.raises(CumulativeDatabaseError, match="re-review"):
+        build_cumulative_scientific_database(
+            current_run_dir=current,
+            output_dir=tmp_path / "stale-review",
+            protocol_path=PROTOCOL_PATH,
+            current_run_id="R1",
+            built_at_utc=FROZEN_TS,
+            validation_decisions=[stale_decision],
+        )
+
+    fresh_candidate = current_classification.competence_candidates[0]
+    fresh_decision = {
+        "target_candidate_id": fresh_candidate.candidate_id,
+        **_decision_snapshot(current_classification, fresh_candidate.candidate_id),
+        "canonical_label": "Digital skills",
+        "decision_status": "accepted",
+        "reviewer": "reviewer-fixture-002",
+        "decision_at_utc": FROZEN_TS,
+        "decision_reason": "Reviewed under the current classifier.",
+    }
+    freshly_reviewed = build_cumulative_scientific_database(
+        current_run_dir=current,
+        output_dir=tmp_path / "fresh-review",
+        protocol_path=PROTOCOL_PATH,
+        current_run_id="R1",
+        built_at_utc=FROZEN_TS,
+        validation_decisions=[fresh_decision],
+    )
+    assert len(freshly_reviewed.sector_competence_assignments) == 1
+
+
 def test_shared_canonical_label_emits_assignment_for_each_accepted_decision(
     tmp_path: Path,
 ) -> None:
@@ -2375,6 +2446,151 @@ def test_shared_canonical_label_emits_assignment_for_each_accepted_decision(
         for assignment in validated.sector_competence_assignments
     } == {canonical_id}
 
+    layer4 = build_layer4(
+        evidence_records=[row.to_dict() for row in validated.evidence_records],
+        competence_signals=[],
+        evidence_fragments=[row.to_dict() for row in validated.evidence_fragments],
+        canonical_competences=[row.to_dict() for row in validated.canonical_competences],
+        sector_competence_assignments=[
+            row.to_dict() for row in validated.sector_competence_assignments
+        ],
+        validation_decisions=[row.to_dict() for row in validated.validation_decisions],
+        competence_candidates=[row.to_dict() for row in validated.competence_candidates],
+        semantic_signals=[row.to_dict() for row in validated.semantic_signals],
+        output_dir=tmp_path / "validated-layer4",
+        current_run_id="R1",
+        analysis_timestamp_utc=FROZEN_TS,
+    )
+    assert len(layer4.derived_demands) == 1
+    assert len(layer4.derived_demands[0].validation_decision_ids.split("|")) == 2
+
+
+def test_layer4_accepts_classified_snapshot_with_retained_unclassified_fragment(
+    tmp_path: Path,
+) -> None:
+    current = tmp_path / "outputs"
+    _write_current_run(
+        current,
+        [
+            {
+                "title": "Hydrosocial digital skills",
+                "abstract": "Digital skills are needed.",
+                "doi": "10.1000/mixed-classification",
+                "provider": "Crossref",
+                "source_query": BOUND_QUERY_TEXT,
+            }
+        ],
+    )
+    initial = build_cumulative_scientific_database(
+        current_run_dir=current,
+        output_dir=tmp_path / "initial",
+        protocol_path=PROTOCOL_PATH,
+        current_run_id="R1",
+        built_at_utc=FROZEN_TS,
+    )
+    candidate = next(
+        row
+        for row in initial.competence_candidates
+        if len(row.fragment_ids.split("|")) > 1
+    )
+    candidate_fragment_ids = set(candidate.fragment_ids.split("|"))
+    candidate_signals = [
+        row
+        for row in initial.semantic_signals
+        if row.signal_id == candidate.signal_id
+        and row.fragment_id in candidate_fragment_ids
+    ]
+    classified_signal = next(row for row in candidate_signals if row.axis_group)
+    unclassified_signal = next(
+        row for row in candidate_signals if not row.axis_group and not row.axis_code
+    )
+    classified_fragment = next(
+        row
+        for row in initial.evidence_fragments
+        if row.fragment_id == classified_signal.fragment_id
+    )
+    snapshot = _decision_snapshot(initial, candidate.candidate_id)
+    snapshot["fragment_ids"] = classified_fragment.fragment_id
+    snapshot["source_provenance_ids"] = classified_fragment.source_provenance_id
+
+    reviewed = build_cumulative_scientific_database(
+        current_run_dir=current,
+        output_dir=tmp_path / "reviewed",
+        protocol_path=PROTOCOL_PATH,
+        current_run_id="R1",
+        built_at_utc=FROZEN_TS,
+        validation_decisions=[
+            {
+                "target_candidate_id": candidate.candidate_id,
+                **snapshot,
+                "canonical_label": "Digital skills",
+                "decision_status": "accepted",
+                "reviewer": "reviewer-fixture-001",
+                "decision_at_utc": FROZEN_TS,
+                "decision_reason": "Accepted only classified retained evidence.",
+            }
+        ],
+    )
+    layer4 = build_layer4(
+        evidence_records=[row.to_dict() for row in reviewed.evidence_records],
+        competence_signals=[],
+        evidence_fragments=[row.to_dict() for row in reviewed.evidence_fragments],
+        canonical_competences=[
+            row.to_dict() for row in reviewed.canonical_competences
+        ],
+        sector_competence_assignments=[
+            row.to_dict() for row in reviewed.sector_competence_assignments
+        ],
+        validation_decisions=[
+            row.to_dict() for row in reviewed.validation_decisions
+        ],
+        competence_candidates=[
+            row.to_dict() for row in reviewed.competence_candidates
+        ],
+        semantic_signals=[row.to_dict() for row in reviewed.semantic_signals],
+        output_dir=tmp_path / "layer4",
+        current_run_id="R1",
+        analysis_timestamp_utc=FROZEN_TS,
+    )
+
+    assert len(reviewed.sector_competence_assignments) == 1
+    assert len(layer4.derived_demands) == 1
+    assert layer4.derived_demands[0].axis_group == classified_signal.axis_group
+
+    malformed_signals = [
+        row.to_dict() for row in reviewed.semantic_signals
+    ]
+    malformed = next(
+        row
+        for row in malformed_signals
+        if row["fragment_id"] == unclassified_signal.fragment_id
+    )
+    malformed["axis_code"] = "M"
+    with pytest.raises(DerivedAnalysisError, match="invalid.*sector-axis context"):
+        build_layer4(
+            evidence_records=[row.to_dict() for row in reviewed.evidence_records],
+            competence_signals=[],
+            evidence_fragments=[
+                row.to_dict() for row in reviewed.evidence_fragments
+            ],
+            canonical_competences=[
+                row.to_dict() for row in reviewed.canonical_competences
+            ],
+            sector_competence_assignments=[
+                row.to_dict() for row in reviewed.sector_competence_assignments
+            ],
+            validation_decisions=[
+                row.to_dict() for row in reviewed.validation_decisions
+            ],
+            competence_candidates=[
+                row.to_dict() for row in reviewed.competence_candidates
+            ],
+            semantic_signals=malformed_signals,
+            output_dir=tmp_path / "malformed-layer4",
+            current_run_id="R1",
+            analysis_timestamp_utc=FROZEN_TS,
+        )
+
 
 def test_current_observation_signal_components_are_reused(
     tmp_path: Path, monkeypatch: pytest.MonkeyPatch
@@ -2419,6 +2635,61 @@ def test_current_observation_signal_components_are_reused(
 
     assert result.competence_demand_signals
     assert calls == ["R1", "R1"]
+
+
+def test_axis_classification_is_cached_per_observation_sentence(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    current = tmp_path / "outputs"
+    _write_current_run(
+        current,
+        [
+            {
+                "title": "Hydrosocial digital skills for port logistics",
+                "abstract": ("Port workers need digital skills. Port workers need digital skills. "
+                             "Governance policy is discussed."),
+                "doi": "10.1000/axis-cache-per-field",
+                "provider": "Crossref",
+                "source_query": BOUND_QUERY_TEXT,
+            }
+        ],
+    )
+    classifier = database_module._EVIDENCE_AXIS_CLASSIFIER
+    original = classifier.classify_context
+    calls: List[tuple[str, str]] = []
+
+    def count_classifications(text: str, *, text_scope: str) -> Any:
+        calls.append((text_scope, text))
+        return original(text, text_scope=text_scope)
+
+    monkeypatch.setattr(classifier, "classify_context", count_classifications)
+
+    result = build_cumulative_scientific_database(
+        current_run_dir=current,
+        output_dir=tmp_path / "database",
+        protocol_path=PROTOCOL_PATH,
+        current_run_id="R1",
+        built_at_utc=FROZEN_TS,
+    )
+
+    assert result.semantic_signals
+    assert len(calls) == 3
+    assert set(calls) == {
+        ("title", "Hydrosocial digital skills for port logistics"),
+        ("abstract", "Port workers need digital skills"),
+        ("abstract", "Governance policy is discussed"),
+    }
+
+    abstract_fragments = {
+        row.fragment_id
+        for row in result.evidence_fragments
+        if row.source_field == "abstract"
+        and row.span_start_offset < len("Port workers need digital skills. " * 2)
+    }
+    abstract_signals = [row for row in result.semantic_signals if row.fragment_id in abstract_fragments]
+    assert len(abstract_signals) >= 2
+    assert {row.axis_group for row in abstract_signals} == {"MARITIME"}
 
 
 def test_semantic_scanner_uses_word_boundaries_and_qualified_claim_gate() -> None:
@@ -2817,7 +3088,17 @@ def test_validation_decision_snapshot_is_immutable_across_later_occurrences(
                 "run_id": "R1",
                 "timestamp_utc": "2026-07-08T00:00:00+00:00",
                 "records": [initial_record],
-            }
+            },
+            {
+                "run_id": "A-before-cutoff",
+                "timestamp_utc": FROZEN_TS,
+                "records": [{
+                    **initial_record,
+                    "title": "Descriptive material.",
+                    "abstract": "",
+                    "retrieval_timestamp": FROZEN_TS,
+                }],
+            },
         ],
     )
     _write_current_run(
@@ -2858,6 +3139,32 @@ def test_validation_decision_snapshot_is_immutable_across_later_occurrences(
     assert decision.fragment_ids == snapshot["fragment_ids"]
     assert decision.source_provenance_ids == snapshot["source_provenance_ids"]
     assert set(decision.fragment_ids.split("|")) < set(candidate.fragment_ids.split("|"))
+
+    # The intermediate observation had no semantic match and is available
+    # from the cumulative bundle timeline, independently of reviewed fragments.
+    observation_rows = [
+        json.loads(line)
+        for line in (recurring.output_dir / EVIDENCE_OBSERVATIONS_JSONL).read_text(
+            encoding="utf-8"
+        ).splitlines()
+    ]
+    layer4 = build_layer4(
+        evidence_records=[row.to_dict() for row in recurring.evidence_records],
+        competence_signals=[],
+        evidence_fragments=[row.to_dict() for row in recurring.evidence_fragments],
+        canonical_competences=[row.to_dict() for row in recurring.canonical_competences],
+        sector_competence_assignments=[
+            row.to_dict() for row in recurring.sector_competence_assignments
+        ],
+        validation_decisions=[row.to_dict() for row in recurring.validation_decisions],
+        competence_candidates=[row.to_dict() for row in recurring.competence_candidates],
+        semantic_signals=[row.to_dict() for row in recurring.semantic_signals],
+        evidence_observations=observation_rows,
+        output_dir=tmp_path / "layer4",
+    )
+    assert len(layer4.derived_demands) == 1
+    demand = layer4.derived_demands[0]
+    assert (demand.latest_seen_at_utc, demand.latest_seen_run_id) == (FROZEN_TS, "A-before-cutoff")
 
 
 def test_validation_decision_requires_explicit_immutable_snapshot(
@@ -3543,6 +3850,44 @@ def test_aggregated_candidate_emits_each_bound_sector_axis_assignment(
         (assignment.sector, assignment.axis_group, assignment.axis_code)
         for assignment in result.sector_competence_assignments
     } == {
-        ("marine-sector", "MARINE", "M"),
-        ("maritime-sector", "MARITIME", "T"),
+        ("marine-sector", "OCEANIC", "O"),
+        ("maritime-sector", "OCEANIC", "O"),
     }
+
+
+def test_deficit_statement_is_retained_as_review_required_demand_signal(
+    tmp_path: Path,
+) -> None:
+    current = tmp_path / "deficit-current"
+    _write_current_run(
+        current,
+        [
+            {
+                "title": "Port operators lack digital skills for automation",
+                "abstract": "Port operators lack digital skills for safe automation.",
+                "doi": "10.1000/deficit-digital-skills",
+                "provider": "Crossref",
+                "source_query": "digital port skills",
+                "retrieval_timestamp": FROZEN_TS,
+            }
+        ],
+    )
+    result = build_cumulative_scientific_database(
+        current_run_dir=current,
+        output_dir=tmp_path / "deficit-output",
+        protocol_path=None,
+        current_run_id="R1",
+        built_at_utc=FROZEN_TS,
+    )
+
+    signals = [
+        row for row in result.semantic_signals
+        if row.signal_type == "digital_skill"
+    ]
+    assert signals
+    assert all(row.manual_review_status == "review_required" for row in signals)
+    assert all(
+        "deficit_statement_review_required" in row.validity_warning
+        for row in signals
+    )
+    assert all(row.axis_group == "MARITIME" for row in signals)

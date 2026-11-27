@@ -13,6 +13,7 @@ CLI::
 
 Reads:
     <database-dir>/evidence_records.jsonl
+    <database-dir>/evidence_observations.jsonl (when available)
     <database-dir>/competence_demand_signals.jsonl
     <database-dir>/evidence_fragments.jsonl
     <database-dir>/semantic_signals.jsonl
@@ -50,6 +51,9 @@ _REPO_ROOT = Path(__file__).resolve().parent.parent
 if str(_REPO_ROOT) not in sys.path:
     sys.path.insert(0, str(_REPO_ROOT))
 
+from src.scientific_sources.cumulative_scientific_database import (  # noqa: E402
+    EVIDENCE_OBSERVATIONS_JSONL,
+)
 from src.scientific_sources.derived_competence_analysis import (  # noqa: E402
     build_layer4,
     build_layer5,
@@ -266,6 +270,7 @@ def main(argv: Optional[List[str]] = None) -> int:
         return 1
 
     evidence = _load_jsonl(db_dir / "evidence_records.jsonl")
+    observations_path = db_dir / EVIDENCE_OBSERVATIONS_JSONL
     signals = _load_jsonl(db_dir / "competence_demand_signals.jsonl")
     evidence_fragments = _load_jsonl(db_dir / "evidence_fragments.jsonl")
     semantic_signals = _load_jsonl(db_dir / "semantic_signals.jsonl")
@@ -299,6 +304,7 @@ def main(argv: Optional[List[str]] = None) -> int:
         validation_decisions=validation_decisions,
         competence_candidates=competence_candidates,
         semantic_signals=semantic_signals,
+        evidence_observations=_load_jsonl(observations_path) if observations_path.exists() else None,
         output_dir=out_dir,
         current_run_id=args.current_run_id,
         stats_dir=stats_dir,

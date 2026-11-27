@@ -11,10 +11,15 @@ import sys
 from pathlib import Path
 from typing import Any, cast
 
+from src.scientific_sources.schema_v2_identity import make_decision_content_hash
+
 
 REPO_ROOT = Path(__file__).resolve().parents[1]
 VALIDATOR_PATH = REPO_ROOT / "scripts" / "validate_csv_bundle.py"
 _PACKAGE_PATH = REPO_ROOT / "scripts" / "build_live_cumulative_release_package.py"
+_VERSIONED_PACKAGE_PATH = (
+    REPO_ROOT / "scripts" / "build_versioned_research_data_package.py"
+)
 
 
 def _load_package_module() -> Any:
@@ -29,6 +34,13 @@ def _load_package_module() -> Any:
 
 
 _PACKAGE = _load_package_module()
+_VERSIONED_PACKAGE_SPEC = importlib.util.spec_from_file_location(
+    "build_versioned_research_data_package_fixture", _VERSIONED_PACKAGE_PATH
+)
+assert _VERSIONED_PACKAGE_SPEC and _VERSIONED_PACKAGE_SPEC.loader
+_VERSIONED_PACKAGE = importlib.util.module_from_spec(_VERSIONED_PACKAGE_SPEC)
+sys.modules[_VERSIONED_PACKAGE_SPEC.name] = _VERSIONED_PACKAGE
+_VERSIONED_PACKAGE_SPEC.loader.exec_module(_VERSIONED_PACKAGE)
 _VALIDATOR_SPEC = importlib.util.spec_from_file_location(
     "validate_csv_bundle_under_test", VALIDATOR_PATH
 )
@@ -154,6 +166,21 @@ def _schema_v2_rows() -> dict[str, dict[str, object]]:
         "source_provenance_ids": provenance_id,
         "superseded_validation_decision_id": "",
     }
+    decision["decision_content_sha256"] = make_decision_content_hash(
+        validation_decision_id=str(decision["validation_decision_id"]),
+        decision_status=str(decision["decision_status"]),
+        target_candidate_id=str(decision["target_candidate_id"]),
+        canonical_label=str(decision["canonical_label"]),
+        reviewer_identifier=str(decision["reviewer"]),
+        decision_rationale=str(decision["decision_reason"]),
+        decision_at_utc=str(decision["decision_at_utc"]),
+        evidence_ids=str(decision["evidence_ids"]),
+        fragment_ids=str(decision["fragment_ids"]),
+        source_provenance_ids=str(decision["source_provenance_ids"]),
+        superseded_validation_decision_id=str(
+            decision["superseded_validation_decision_id"]
+        ),
+    )
     canonical: dict[str, object] = {
         "canonical_competence_id": "",
         "validation_decision_id": decision["validation_decision_id"],
@@ -305,6 +332,54 @@ def test_cli_accepts_a_fully_linked_clean_bundle(tmp_path: Path) -> None:
 
     assert completed.returncode == 0, completed.stderr
     assert "[OK] Schema-v2 bundle preflight passed." in completed.stdout
+
+
+def test_cli_rejects_matching_decision_reason_tampering_with_stale_digest(
+    tmp_path: Path,
+) -> None:
+    bundle_dir = tmp_path / "tampered-decision"
+    _write_valid_bundle(bundle_dir)
+    _update_projection(
+        bundle_dir,
+        "validation_decisions",
+        {"decision_reason": "Tampered in both projections."},
+    )
+
+    completed = _run_validator(bundle_dir)
+    output = completed.stdout + completed.stderr
+
+    assert completed.returncode == 1
+    assert "decision_content_sha256" in output
+    assert "cross_projection_value_mismatch" not in output
+
+
+def test_versioned_package_validator_rejects_tampered_decision_digest() -> None:
+    rows = _schema_v2_rows()
+    entity_names = _VERSIONED_PACKAGE.SCHEMA_V2_ENTITY_NAMES
+    valid_projection = {
+        entity_name: [dict(rows[entity_name])] for entity_name in entity_names
+    }
+    valid_errors = _VERSIONED_PACKAGE._validate_schema_v2_projection_and_lineage(
+        schema_v2_csv_rows=valid_projection,
+        schema_v2_jsonl_rows=valid_projection,
+    )
+    assert not any("decision_content_sha256" in error for error in valid_errors)
+
+    tampered_projection = {
+        entity_name: [dict(rows[entity_name])] for entity_name in entity_names
+    }
+    tampered_projection["validation_decisions"][0]["decision_reason"] = (
+        "Tampered in both projections."
+    )
+    errors = _VERSIONED_PACKAGE._validate_schema_v2_projection_and_lineage(
+        schema_v2_csv_rows=tampered_projection,
+        schema_v2_jsonl_rows={
+            entity_name: [dict(row) for row in entity_rows]
+            for entity_name, entity_rows in tampered_projection.items()
+        },
+    )
+
+    assert any("decision_content_sha256" in error for error in errors)
 
 
 def test_cli_rejects_forged_canonical_competence_identity(tmp_path: Path) -> None:
@@ -537,18 +612,35 @@ def test_cli_rejects_nonrequired_evidence_record_field_mismatch(
     ) in completed.stderr
 
 
-def test_projection_rejects_type_mismatch_even_when_values_stringify_equally() -> None:
+def test_projection_accepts_equivalent_csv_and_jsonl_scalar_types() -> None:
+    required = _fields_for("evidence_records")
+    csv_row: dict[str, object] = {field: "fixture" for field in required}
+    csv_row.update(
+        {
+            "evidence_id": "E-0001",
+            "provider_count": "1",
+            "citation_count": "2",
+            "record_recurrence_count": "3",
+            "year": "2026",
+        }
+    )
+    jsonl_row = dict(csv_row)
+    jsonl_row.update(
+        {
+            "provider_count": 1,
+            "citation_count": 2,
+            "record_recurrence_count": 3,
+            "year": 2026,
+        }
+    )
     errors = _VALIDATOR._validate_evidence_record_projection(  # type: ignore[attr-defined]
-        {"evidence_records.csv": [{"evidence_id": "E-0001", "record_recurrence_count": 1}]},
-        {"evidence_records.jsonl": [{"evidence_id": "E-0001", "record_recurrence_count": "1"}]},
+        {"evidence_records.csv": [csv_row]},
+        {"evidence_records.jsonl": [jsonl_row]},
         {"evidence_records.csv": [2]},
         {"evidence_records.jsonl": [1]},
     )
 
-    assert (
-        "evidence_records_cross_projection_type_mismatch:"
-        "record_recurrence_count:csv:L2:jsonl:L1"
-    ) in errors
+    assert errors == []
 
 
 def test_validate_csv_bundle_importable_as_module(tmp_path: Path) -> None:

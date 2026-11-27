@@ -3,6 +3,8 @@ from __future__ import annotations
 import hashlib
 import importlib.util
 import json
+import subprocess
+import sys
 from pathlib import Path
 
 import pytest
@@ -152,10 +154,10 @@ def test_cli_emits_accepted_canonical_hydronization_lineage_demand(
         current_run / "research_sources" / "live_records.json",
         [
             {
-                "title": "Water governance competence needs in desalination",
+                "title": "Hydrosocial competence needs in desalination",
                 "abstract": (
-                    "Desalination operators need governance competence for "
-                    "hydrosocial water justice."
+                    "Desalination operators need hydrosocial competence for "
+                    "water retention."
                 ),
                 "doi": "10.1000/accepted-hydronization-lineage",
                 "source_id": "crossref:accepted-hydronization-lineage",
@@ -176,7 +178,7 @@ def test_cli_emits_accepted_canonical_hydronization_lineage_demand(
         row
         for row in initial.competence_candidates
         if row.axis_group == "HYDRONIZATION"
-        and row.candidate_label.lower() == "governance"
+        and row.candidate_label.lower() == "competence"
     )
 
     validated = build_cumulative_scientific_database(
@@ -260,3 +262,33 @@ def test_cli_emits_accepted_canonical_hydronization_lineage_demand(
     h2 = layer5_manifest["hypothesis_results"]["H2"]
     assert h2["validated_hydronization_demand_count"] == 1
     assert h2["validated_missing_demand_count"] == 1
+
+    # Repeated observations must preserve the reviewed timestamp/run pair.
+    records_path = database_dir / "evidence_records.jsonl"
+    history_path = database_dir / "evidence_observations.jsonl"
+    record = json.loads(records_path.read_text(encoding="utf-8"))
+    history = [json.loads(history_path.read_text(encoding="utf-8"))]
+    command = [
+        sys.executable, str(REPO_ROOT / "scripts/build_layer4_5_scientific_analysis.py"),
+        "--database-dir", str(database_dir), "--output-dir", str(database_dir),
+        "--stats-dir", str(stats_dir), "--repository-root", str(REPO_ROOT),
+        "--outputs-root", str(tmp_path), "--current-run-id", "RUN-CANONICAL-H",
+        "--analysis-timestamp-utc", "2026-07-21T00:00:00+00:00",
+    ]
+    reviewed_at = "2026-07-05T00:00:00+00:00"
+    for instant, run_id in [(reviewed_at, "RUN-A"), ("2026-07-20T00:00:00+00:00", "RUN-Z")]:
+        history.append(dict(history[0], observed_at_utc=instant, run_id=run_id))
+        record.update(latest_seen_at_utc=instant, latest_seen_run_id=run_id,
+                      record_recurrence_count=len(history))
+        records_path.write_text(json.dumps(record) + "\n", encoding="utf-8")
+        history_path.write_text("".join(json.dumps(row) + "\n" for row in history), encoding="utf-8")
+        subprocess.run(command, check=True, capture_output=True, text=True)
+        emitted = (database_dir / "derived_competence_demands.jsonl").read_text(encoding="utf-8")
+        latest = next(row for row in map(json.loads, emitted.splitlines())
+                      if row["canonical_competence_id"] == canonical_row["canonical_competence_id"])
+        assert (latest["latest_seen_at_utc"], latest["latest_seen_run_id"]) == (reviewed_at, "RUN-A")
+
+    history_path.unlink()
+    missing = subprocess.run(command, capture_output=True, text=True)
+    assert missing.returncode != 0
+    assert "requires retained observation history" in missing.stderr + missing.stdout

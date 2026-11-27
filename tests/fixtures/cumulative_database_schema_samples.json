@@ -163,7 +163,8 @@
     "evidence_ids": "rec_001",
     "fragment_ids": "fragment:f04f237eb0f01f0415223decd412b832006523a942348900887741e1064d063e",
     "source_provenance_ids": "prov:ff52d67b00ce5d1a4c80f7be0e1c3eb2d19b615edb5ba79a881a0a0a49e5ad36",
-    "superseded_validation_decision_id": ""
+    "superseded_validation_decision_id": "",
+    "decision_content_sha256": "90dab9e2d69fc39be9172c62e6576aa19bb01b9128051304c02e24545b6ceb1c"
   },
   "coding_assignments": {
     "assignment_pk": "assign_pk_001",
