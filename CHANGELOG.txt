@@ -1,3 +1,11 @@
+2026-11-16 — MOR-15A governed ABRP gold-corpus foundation
+- Add a Draft-2020-12 ABRP annotation schema, fail-closed semantic validator, deterministic positive/negative fixtures, and codebook.
+- Enforce no-exact-action-span -> no validated human capability, Phase-A sector/QMBD/candidate blindness, paired QMBD group/code values, explicit deficit polarity, and adjudicated-only gold status.
+- Preserve Pilot-v7 only as non-gold seed metadata because the 24 case-level evidence IDs are not present in the repository; no IDs or labels are fabricated.
+- Add an auditable PR approval check for governed gold-corpus paths. Canonical main currently has no ruleset requiring this check, so branch-admin enforcement remains a separate repository-control step.
+- Couple the legacy QMBD gold-review axis group/code schema to eliminate contradictory accepted pairs.
+- No retained empirical outputs, archive, live-provider acquisition, or H1/H2/H3 result is changed.
+
 CHANGELOG.txt
 
 Purpose

@@ -1,0 +1,17 @@
+{
+  "schema_version": "abrp_pilot_v7_seed_manifest/1.0.0",
+  "seed_name": "Pilot-v7 Phase-A TITLE_ONLY baseline",
+  "is_gold": false,
+  "evidence_scope": "title",
+  "case_count": 24,
+  "baseline_counts": {
+    "complete_action_proposition": 0,
+    "partial_action_proposition": 15,
+    "underspecified": 4,
+    "meta_signal": 1,
+    "context_only_or_non_human_capability": 4
+  },
+  "evidence_ids_status": "unavailable_in_current_repository",
+  "evidence_ids": [],
+  "provenance_note": "Counts are retained from MOR-15A issue specification. Case-level evidence IDs were not discoverable in the repository at implementation time and are intentionally not fabricated. This manifest is not an adjudicated corpus."
+}
