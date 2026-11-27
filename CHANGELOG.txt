@@ -1692,3 +1692,9 @@ PR #270 follow-up completion hardening
 - Restrict inferential dimensions to non-zero margins while retaining all zero cells descriptively.
 
 PR #270 review-address pass: reinforce corpus-screening interpretation boundaries, add explicit `screening_validation_state` flags to screening rows, and strengthen external-comparison provenance labels/consumer read-order guidance.
+
+2026-11-16 — MOR-15A governed ABRP gold-corpus foundation
+- Add versioned ABRP annotation schema and fail-closed semantic validator: no exact action span means no validated human capability; Phase A forbids sector/QMBD leakage.
+- Import the frozen 24-case Pilot-v7 title-level inventory only as a non-gold evaluation seed with aggregate baseline metadata; no row-level adjudicated labels are invented.
+- Couple proposed QMBD axis group/code pairs in the legacy gold-review schema, closing the contradictory-pair validity defect.
+- No retained empirical inputs, H1/H2/H3 results, live-provider acquisition, or archive contents are changed.

@@ -54,6 +54,108 @@
         "enum": ["proposed", "reviewed", "accepted", "rejected"]
       },
       "adjudication_note": { "type": "string" }
-    }
+    },
+    "allOf": [
+      {
+        "if": {
+          "required": ["proposed_axis_group"],
+          "properties": {"proposed_axis_group": {"const": ""}}
+        },
+        "then": {
+          "required": ["proposed_axis_code"],
+          "properties": {"proposed_axis_code": {"const": ""}}
+        }
+      },
+      {
+        "if": {
+          "required": ["proposed_axis_code"],
+          "properties": {"proposed_axis_code": {"const": ""}}
+        },
+        "then": {
+          "required": ["proposed_axis_group"],
+          "properties": {"proposed_axis_group": {"const": ""}}
+        }
+      },
+      {
+        "if": {
+          "required": ["proposed_axis_group"],
+          "properties": {"proposed_axis_group": {"const": "MARINE"}}
+        },
+        "then": {
+          "required": ["proposed_axis_code"],
+          "properties": {"proposed_axis_code": {"const": "M"}}
+        }
+      },
+      {
+        "if": {
+          "required": ["proposed_axis_code"],
+          "properties": {"proposed_axis_code": {"const": "M"}}
+        },
+        "then": {
+          "required": ["proposed_axis_group"],
+          "properties": {"proposed_axis_group": {"const": "MARINE"}}
+        }
+      },
+      {
+        "if": {
+          "required": ["proposed_axis_group"],
+          "properties": {"proposed_axis_group": {"const": "MARITIME"}}
+        },
+        "then": {
+          "required": ["proposed_axis_code"],
+          "properties": {"proposed_axis_code": {"const": "T"}}
+        }
+      },
+      {
+        "if": {
+          "required": ["proposed_axis_code"],
+          "properties": {"proposed_axis_code": {"const": "T"}}
+        },
+        "then": {
+          "required": ["proposed_axis_group"],
+          "properties": {"proposed_axis_group": {"const": "MARITIME"}}
+        }
+      },
+      {
+        "if": {
+          "required": ["proposed_axis_group"],
+          "properties": {"proposed_axis_group": {"const": "OCEANIC"}}
+        },
+        "then": {
+          "required": ["proposed_axis_code"],
+          "properties": {"proposed_axis_code": {"const": "O"}}
+        }
+      },
+      {
+        "if": {
+          "required": ["proposed_axis_code"],
+          "properties": {"proposed_axis_code": {"const": "O"}}
+        },
+        "then": {
+          "required": ["proposed_axis_group"],
+          "properties": {"proposed_axis_group": {"const": "OCEANIC"}}
+        }
+      },
+      {
+        "if": {
+          "required": ["proposed_axis_group"],
+          "properties": {"proposed_axis_group": {"const": "HYDRONIZATION"}}
+        },
+        "then": {
+          "required": ["proposed_axis_code"],
+          "properties": {"proposed_axis_code": {"const": "H"}}
+        }
+      },
+      {
+        "if": {
+          "required": ["proposed_axis_code"],
+          "properties": {"proposed_axis_code": {"const": "H"}}
+        },
+        "then": {
+          "required": ["proposed_axis_group"],
+          "properties": {"proposed_axis_group": {"const": "HYDRONIZATION"}}
+        }
+      }
+    ]
   }
 }

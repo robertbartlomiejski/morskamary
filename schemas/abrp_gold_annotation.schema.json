@@ -1,0 +1,554 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://morskamary.local/schemas/abrp_gold_annotation.schema.json",
+  "title": "MOR-15A governed ABRP gold-corpus annotation package",
+  "description": "Screening strength is not semantic completeness. No exact action span means no validated human capability.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "corpus_status",
+    "coding_phase",
+    "method_contract",
+    "annotations"
+  ],
+  "$defs": {
+    "span": {
+      "type": [
+        "object",
+        "null"
+      ],
+      "required": [
+        "text",
+        "start",
+        "end"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "text": {
+          "type": "string",
+          "minLength": 1
+        },
+        "start": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "end": {
+          "type": "integer",
+          "minimum": 1
+        }
+      }
+    },
+    "annotation": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "annotation_id",
+        "evidence_id",
+        "fragment_id",
+        "source_surface",
+        "evidence_text",
+        "exact_evidence_span",
+        "actor_span",
+        "actor",
+        "action_span",
+        "primary_action",
+        "action_object_span",
+        "action_object",
+        "transformation_span",
+        "transformation_driver",
+        "affected_relation",
+        "effect_span",
+        "intended_effect",
+        "qualifier",
+        "qualifier_basis",
+        "semantic_completeness",
+        "capability_content_gate",
+        "ocean_relationality",
+        "sector",
+        "qmbd_axis",
+        "axis_hidden_phase_A",
+        "axis_revealed_phase_B",
+        "axis_fit",
+        "candidate_capability",
+        "canonicalization_level",
+        "translation_candidate",
+        "supply_relevance",
+        "coder_decision",
+        "reviewer",
+        "confidence",
+        "adjudication"
+      ],
+      "properties": {
+        "annotation_id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "evidence_id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "fragment_id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "source_surface": {
+          "enum": [
+            "title",
+            "subject_terms",
+            "abstract",
+            "full_text",
+            "retained_provider_payload"
+          ]
+        },
+        "evidence_text": {
+          "type": "string",
+          "minLength": 1
+        },
+        "exact_evidence_span": {
+          "$ref": "#/$defs/span"
+        },
+        "actor_span": {
+          "$ref": "#/$defs/span"
+        },
+        "actor": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "action_span": {
+          "$ref": "#/$defs/span"
+        },
+        "primary_action": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "action_object_span": {
+          "$ref": "#/$defs/span"
+        },
+        "action_object": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "transformation_span": {
+          "$ref": "#/$defs/span"
+        },
+        "transformation_driver": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "affected_relation": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "effect_span": {
+          "$ref": "#/$defs/span"
+        },
+        "intended_effect": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "qualifier": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "qualifier_basis": {
+          "enum": [
+            "explicit",
+            "strongly_entailed",
+            "inferred",
+            null
+          ]
+        },
+        "semantic_completeness": {
+          "enum": [
+            "complete_action_proposition",
+            "partial_action_proposition",
+            "meta_signal",
+            "underspecified",
+            "non_capability"
+          ]
+        },
+        "capability_content_gate": {
+          "enum": [
+            "PASS",
+            "PARTIAL",
+            "FAIL_META",
+            "FAIL_INSUFFICIENT",
+            "REJECT"
+          ]
+        },
+        "ocean_relationality": {
+          "enum": [
+            "constitutive",
+            "conditioning",
+            "incidental",
+            "unclear"
+          ]
+        },
+        "sector": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "qmbd_axis": {
+          "enum": [
+            "MARINE",
+            "MARITIME",
+            "OCEANIC",
+            "HYDRONIZATION",
+            null
+          ]
+        },
+        "axis_hidden_phase_A": {
+          "type": "boolean"
+        },
+        "axis_revealed_phase_B": {
+          "type": "boolean"
+        },
+        "axis_fit": {
+          "enum": [
+            "congruent",
+            "mixed",
+            "incongruent",
+            "unclear",
+            null
+          ]
+        },
+        "candidate_capability": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "canonicalization_level": {
+          "enum": [
+            "event_capability",
+            "sector_capability",
+            "capability_family",
+            null
+          ]
+        },
+        "translation_candidate": {
+          "enum": [
+            "none",
+            "candidate"
+          ]
+        },
+        "supply_relevance": {
+          "enum": [
+            "none",
+            "requires_independent_supply_check"
+          ]
+        },
+        "coder_decision": {
+          "enum": [
+            "accept_candidate",
+            "revise",
+            "reject_noncompetence",
+            "review_required"
+          ]
+        },
+        "reviewer": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "confidence": {
+          "enum": [
+            "low",
+            "medium",
+            "high",
+            null
+          ]
+        },
+        "adjudication": {
+          "enum": [
+            "pending",
+            "accepted",
+            "revised",
+            "rejected",
+            "disagreement",
+            null
+          ]
+        }
+      },
+      "allOf": [
+        {
+          "if": {
+            "properties": {
+              "capability_content_gate": {
+                "const": "PASS"
+              }
+            },
+            "required": [
+              "capability_content_gate"
+            ]
+          },
+          "then": {
+            "properties": {
+              "semantic_completeness": {
+                "const": "complete_action_proposition"
+              },
+              "actor_span": {
+                "type": "object"
+              },
+              "action_span": {
+                "type": "object"
+              },
+              "action_object_span": {
+                "type": "object"
+              },
+              "transformation_span": {
+                "type": "object"
+              },
+              "actor": {
+                "type": "string",
+                "minLength": 1
+              },
+              "primary_action": {
+                "type": "string",
+                "minLength": 1
+              },
+              "action_object": {
+                "type": "string",
+                "minLength": 1
+              },
+              "transformation_driver": {
+                "type": "string",
+                "minLength": 1
+              },
+              "affected_relation": {
+                "type": "string",
+                "minLength": 1
+              },
+              "candidate_capability": {
+                "type": "string",
+                "minLength": 1
+              },
+              "canonicalization_level": {
+                "enum": [
+                  "event_capability",
+                  "sector_capability",
+                  "capability_family"
+                ]
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "semantic_completeness": {
+                "const": "complete_action_proposition"
+              }
+            },
+            "required": [
+              "semantic_completeness"
+            ]
+          },
+          "then": {
+            "properties": {
+              "capability_content_gate": {
+                "const": "PASS"
+              }
+            }
+          }
+        }
+      ]
+    }
+  },
+  "properties": {
+    "schema_version": {
+      "const": "abrp_gold_annotation/1"
+    },
+    "corpus_status": {
+      "enum": [
+        "pilot_seed_non_gold",
+        "coder_blind",
+        "adjudicated_gold"
+      ]
+    },
+    "coding_phase": {
+      "enum": [
+        "A",
+        "B"
+      ]
+    },
+    "method_contract": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "empirical_unit",
+        "phase_a_blindness",
+        "no_action_span_rule"
+      ],
+      "properties": {
+        "empirical_unit": {
+          "const": "Action-Bearing Relational Proposition (ABRP)"
+        },
+        "phase_a_blindness": {
+          "const": true
+        },
+        "no_action_span_rule": {
+          "const": "no_exact_action_span_no_validated_human_capability"
+        }
+      }
+    },
+    "annotations": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/annotation"
+      }
+    }
+  },
+  "allOf": [
+    {
+      "if": {
+        "properties": {
+          "coding_phase": {
+            "const": "A"
+          }
+        },
+        "required": [
+          "coding_phase"
+        ]
+      },
+      "then": {
+        "properties": {
+          "annotations": {
+            "items": {
+              "properties": {
+                "axis_hidden_phase_A": {
+                  "const": true
+                },
+                "axis_revealed_phase_B": {
+                  "const": false
+                },
+                "sector": {
+                  "const": null
+                },
+                "qmbd_axis": {
+                  "const": null
+                },
+                "axis_fit": {
+                  "const": null
+                },
+                "candidate_capability": {
+                  "const": null
+                },
+                "canonicalization_level": {
+                  "const": null
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "coding_phase": {
+            "const": "B"
+          }
+        },
+        "required": [
+          "coding_phase"
+        ]
+      },
+      "then": {
+        "properties": {
+          "annotations": {
+            "items": {
+              "properties": {
+                "axis_hidden_phase_A": {
+                  "const": true
+                },
+                "axis_revealed_phase_B": {
+                  "const": true
+                },
+                "sector": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "qmbd_axis": {
+                  "enum": [
+                    "MARINE",
+                    "MARITIME",
+                    "OCEANIC",
+                    "HYDRONIZATION"
+                  ]
+                },
+                "axis_fit": {
+                  "enum": [
+                    "congruent",
+                    "mixed",
+                    "incongruent",
+                    "unclear"
+                  ]
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "corpus_status": {
+            "const": "adjudicated_gold"
+          }
+        },
+        "required": [
+          "corpus_status"
+        ]
+      },
+      "then": {
+        "properties": {
+          "annotations": {
+            "items": {
+              "properties": {
+                "reviewer": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "adjudication": {
+                  "enum": [
+                    "accepted",
+                    "revised",
+                    "rejected",
+                    "disagreement"
+                  ]
+                },
+                "confidence": {
+                  "enum": [
+                    "low",
+                    "medium",
+                    "high"
+                  ]
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  ]
+}

@@ -1,0 +1,20 @@
+{
+  "schema_version": "pilot_v7_phase_a_seed/1",
+  "corpus_status": "pilot_seed_non_gold",
+  "source_name": "pilot_v7_wip.csv",
+  "source_snapshot_sha": "4b12c2413f04ed10c2b3ac358dfc35ffa2b78213",
+  "imported_as": "evaluation_seed_only",
+  "expected_case_count": 24,
+  "evidence_surface": "title",
+  "validity_warning": "metadata_only_limitation",
+  "adjudication_status": "not_yet_adjudicated",
+  "phase_a_baseline_summary": {
+    "total": 24,
+    "complete_action_proposition": 0,
+    "partial_action_proposition": 15,
+    "underspecified": 4,
+    "meta_signal": 1,
+    "context_only_or_non_human_capability": 4
+  },
+  "methodological_note": "Aggregate Phase-A baseline is frozen for benchmark comparison only. No row-level adjudicated gold labels are inferred from this seed."
+}
