@@ -22,12 +22,7 @@ def _write_demands(path: Path) -> None:
     with path.open("w", newline="", encoding="utf-8") as handle:
         writer = csv.DictWriter(
             handle,
-            fieldnames=[
-                "competence_demand_id",
-                "competence_label",
-                "sector",
-                "axis_group",
-            ],
+            fieldnames=sensitivity.DERIVED_DEMAND_COLUMNS,
         )
         writer.writeheader()
         writer.writerows(
@@ -71,30 +66,35 @@ def _fixture(tmp_path: Path, *, include_wos: bool = False) -> dict[str, Path]:
             "evidence_id": "E1",
             "canonical_doi": "10.1/a",
             "providers_seen": "crossref|scopus",
+            "query_families_seen": "competence_demand|hypothesis_verification",
             "latest_seen_at_utc": "2026-07-20T00:00:00+00:00",
         },
         {
             "evidence_id": "E2",
             "canonical_doi": "10.1/b",
             "providers_seen": "openalex",
+            "query_families_seen": "competence_demand",
             "latest_seen_at_utc": "2026-07-20T00:00:00+00:00",
         },
         {
             "evidence_id": "E3",
             "canonical_doi": "10.1/c",
             "providers_seen": "crossref",
+            "query_families_seen": "competence_demand",
             "latest_seen_at_utc": "2026-07-20T00:00:00+00:00",
         },
         {
             "evidence_id": "E4",
             "canonical_doi": "10.1/d",
             "providers_seen": "crossref",
+            "query_families_seen": "competence_demand",
             "latest_seen_at_utc": "2026-07-20T00:00:00+00:00",
         },
         {
             "evidence_id": "E5",
             "canonical_doi": "10.1/e",
             "providers_seen": "openalex",
+            "query_families_seen": "competence_demand",
             "latest_seen_at_utc": "2026-07-20T00:00:00+00:00",
         },
     ]
@@ -104,6 +104,7 @@ def _fixture(tmp_path: Path, *, include_wos: bool = False) -> dict[str, Path]:
                 "evidence_id": "E6",
                 "canonical_doi": "10.1/f",
                 "providers_seen": "wos",
+                "query_families_seen": "hypothesis_verification",
                 "latest_seen_at_utc": "2026-07-20T00:00:00+00:00",
             }
         )
@@ -212,6 +213,7 @@ def _build(tmp_path: Path, paths: dict[str, Path], supply: Path | None = None) -
         derived_demands_path=paths["demands"],
         hypothesis_fragments_path=paths["fragments"],
         validated_supply_map_path=supply,
+        protocol_path=Path("config/live_query_protocol.yml"),
         output_json_path=tmp_path / "provider_sensitivity_analysis.json",
         output_markdown_path=tmp_path / "provider_sensitivity_analysis.md",
     )
@@ -282,19 +284,19 @@ def test_missing_required_input_fails_closed(tmp_path: Path) -> None:
         _build(tmp_path, paths)
 
 
-def test_empty_required_jsonl_and_csv_inputs_fail_closed(tmp_path: Path) -> None:
+def test_empty_signals_and_demands_are_valid_not_computable_inputs(tmp_path: Path) -> None:
     paths = _fixture(tmp_path)
     paths["signals"].write_text("", encoding="utf-8")
-    with pytest.raises(ValueError, match="signals file contains no rows"):
-        _build(tmp_path, paths)
-
-    paths = _fixture(tmp_path)
     paths["demands"].write_text(
-        "competence_demand_id,competence_label,sector,axis_group\n",
+        ",".join(sensitivity.DERIVED_DEMAND_COLUMNS) + "\n",
         encoding="utf-8",
     )
-    with pytest.raises(ValueError, match="derived demands file contains no rows"):
-        _build(tmp_path, paths)
+    result = _build(tmp_path, paths)
+    baseline = result["subsets"]["all_canonical"]
+    assert baseline["semantic_signal_count"] == 0
+    assert baseline["derived_demand_count"] == 0
+    assert baseline["h1"]["interpretation"] == "not_computable"
+    assert baseline["h2"]["interpretation"] == "not_computable"
 
 
 def test_empty_hypothesis_fragments_produces_not_computable(tmp_path: Path) -> None:
@@ -385,3 +387,199 @@ def test_validated_supply_changes_h2_only_with_evidence(tmp_path: Path) -> None:
     assert h2["validated_covered_demand_count"] == 1
     assert h2["validated_missing_demand_count"] == 0
     assert h2["interpretation"] == "not_supported"
+
+
+def test_query_family_diversity_comes_from_retained_evidence(tmp_path: Path) -> None:
+    paths = _fixture(tmp_path)
+    result = _build(tmp_path, paths)
+    demand = next(
+        row
+        for row in result["subsets"]["all_canonical"]["top_demands"]
+        if row["competence_demand_id"] == "D-MAR-1"
+    )
+    assert demand["query_families_seen"] == "competence_demand|hypothesis_verification"
+
+
+def test_hypothesis_labels_and_tests_are_loaded_from_protocol(tmp_path: Path) -> None:
+    paths = _fixture(tmp_path)
+    protocol = tmp_path / "protocol.yml"
+    protocol.write_text(
+        """
+hypotheses:
+  H1:
+    label: Custom H1
+    test: custom test 1
+    declared_outcomes:
+      - supported_maritime_dominance
+      - partially_supported_maritime
+      - not_supported
+      - not_computable
+    required_result_fields:
+      - hypothesis_id
+      - hypothesis_label
+      - sample_size_maritime
+      - sample_size_oceanic
+      - effect_size_cohens_d
+      - interpretation
+  H2:
+    label: Custom H2
+    test: custom test 2
+    declared_outcomes: [supported, partially_supported, not_supported, not_computable]
+    required_result_fields:
+      - hypothesis_id
+      - hypothesis_label
+      - hydronization_demand_count
+      - validated_covered_demand_count
+      - validated_missing_demand_count
+      - interpretation
+  H3:
+    label: Custom H3
+    test: custom test 3
+    declared_outcomes: [supported, partially_supported, not_supported, not_computable]
+    required_result_fields:
+      - hypothesis_id
+      - hypothesis_label
+      - marine_fragment_count
+      - oceanic_fragment_count
+      - semantic_bridge_count
+      - interpretation
+""".strip()
+        + "\n",
+        encoding="utf-8",
+    )
+    result = sensitivity.build_provider_sensitivity_analysis(
+        evidence_path=paths["evidence"],
+        signals_path=paths["signals"],
+        derived_demands_path=paths["demands"],
+        hypothesis_fragments_path=paths["fragments"],
+        validated_supply_map_path=None,
+        protocol_path=protocol,
+        output_json_path=tmp_path / "custom.json",
+        output_markdown_path=tmp_path / "custom.md",
+    )
+    baseline = result["subsets"]["all_canonical"]
+    assert baseline["h1"]["hypothesis_label"] == "Custom H1"
+    assert baseline["h1"]["test_used"] == "custom test 1"
+    assert baseline["h2"]["hypothesis_label"] == "Custom H2"
+    assert baseline["h3"]["hypothesis_label"] == "Custom H3"
+
+
+def test_empty_demand_csv_rejects_missing_required_header_columns(
+    tmp_path: Path,
+) -> None:
+    path = tmp_path / "derived_competence_demands.csv"
+    path.write_text("unexpected_column\n", encoding="utf-8")
+    with pytest.raises(ValueError, match="missing required columns"):
+        sensitivity._read_csv_required(
+            path,
+            "derived demands",
+            allow_empty=True,
+            required_fields=(
+                "competence_demand_id",
+                "competence_label",
+                "sector",
+                "axis_group",
+            ),
+            allowed_fields=sensitivity.DERIVED_DEMAND_COLUMNS,
+        )
+
+
+def test_empty_demand_csv_rejects_unexpected_header_column(tmp_path: Path) -> None:
+    path = tmp_path / "derived_competence_demands.csv"
+    path.write_text(
+        ",".join((*sensitivity.DERIVED_DEMAND_COLUMNS, "unexpected_column")) + "\n",
+        encoding="utf-8",
+    )
+    with pytest.raises(ValueError, match="unexpected columns"):
+        sensitivity._read_csv_required(
+            path,
+            "derived demands",
+            allow_empty=True,
+            required_fields=sensitivity.DERIVED_DEMAND_COLUMNS,
+            allowed_fields=sensitivity.DERIVED_DEMAND_COLUMNS,
+        )
+
+
+def test_declared_hypothesis_ids_drive_sensitivity_outputs(tmp_path: Path) -> None:
+    paths = _fixture(tmp_path)
+    protocol = tmp_path / "protocol.yml"
+    protocol.write_text(
+        """
+hypotheses:
+  H1:
+    label: Custom H1
+    test: custom test
+    declared_outcomes: [supported_maritime_dominance, partially_supported_maritime, not_supported, not_computable]
+    required_result_fields: [hypothesis_id, hypothesis_label, interpretation]
+""".strip()
+        + "\n",
+        encoding="utf-8",
+    )
+    output_json = tmp_path / "custom.json"
+    output_markdown = tmp_path / "custom.md"
+    result = sensitivity.build_provider_sensitivity_analysis(
+        evidence_path=paths["evidence"],
+        signals_path=paths["signals"],
+        derived_demands_path=paths["demands"],
+        hypothesis_fragments_path=paths["fragments"],
+        validated_supply_map_path=None,
+        protocol_path=protocol,
+        output_json_path=output_json,
+        output_markdown_path=output_markdown,
+    )
+    baseline = result["subsets"]["all_canonical"]
+    assert baseline["h1"]["hypothesis_id"] == "H1"
+    assert "h2" not in baseline
+    assert "h3" not in baseline
+    markdown = output_markdown.read_text(encoding="utf-8")
+    assert "| subset | providers | evidence | DOI | signals | demands | max share | H1 |" in markdown
+    assert " | H2 | " not in markdown
+
+
+def test_protocol_rejects_unsupported_hypothesis_before_writing_reports(
+    tmp_path: Path,
+) -> None:
+    paths = _fixture(tmp_path)
+    protocol = tmp_path / "protocol.yml"
+    protocol.write_text(
+        """
+hypotheses:
+  H1:
+    label: H1
+    test: test
+    declared_outcomes: [not_computable]
+    required_result_fields: [hypothesis_id]
+  H2:
+    label: H2
+    test: test
+    declared_outcomes: [not_computable]
+    required_result_fields: [hypothesis_id]
+  H3:
+    label: H3
+    test: test
+    declared_outcomes: [not_computable]
+    required_result_fields: [hypothesis_id]
+  H4:
+    label: H4
+    test: unsupported
+    declared_outcomes: [not_computable]
+    required_result_fields: [hypothesis_id]
+""".strip()
+        + "\n",
+        encoding="utf-8",
+    )
+    output_json = tmp_path / "unsupported.json"
+    output_markdown = tmp_path / "unsupported.md"
+    with pytest.raises(ValueError, match="unsupported hypotheses: H4"):
+        sensitivity.build_provider_sensitivity_analysis(
+            evidence_path=paths["evidence"],
+            signals_path=paths["signals"],
+            derived_demands_path=paths["demands"],
+            hypothesis_fragments_path=paths["fragments"],
+            validated_supply_map_path=None,
+            protocol_path=protocol,
+            output_json_path=output_json,
+            output_markdown_path=output_markdown,
+        )
+    assert not output_json.exists()
+    assert not output_markdown.exists()

@@ -1,3 +1,15 @@
+2026-11-17 — close current technical debt inherited from historical PR #217
+- Treat empty derived contributing-provider profiles as unavailable for cross-run comparability.
+- Recognize canonical LIVE_API and Microsoft Graph graph: provenance in stability snapshots.
+- Accept schema-valid empty sensitivity signals/demands as not-computable outcomes rather than input corruption.
+- Recompute sensitivity query diversity from retained evidence query-family history and bind every supported protocol-declared hypothesis to config/live_query_protocol.yml; reject unsupported declarations before report publication.
+- Validate the canonical derived-demand CSV schema, including header-only inputs, and publish results for every declared supported hypothesis.
+- Exclude unimplemented Google Drive acquisition from providers=all and fail closed on explicit requests.
+- Clear checkout-state audit evidence immediately after checkout, before Python/tool setup can fail.
+- Reject malformed mapping-shaped pagination diagnostics and count actual attempted logical pages, preserving zero attempts.
+- Legacy OpenAlex export live-routing debt is not duplicated here because PR #297 supersedes that route under the MOR-26 fail-closed ledger programme.
+- No retained empirical inputs, archive, or H1/H2/H3 claim is rewritten by this hardening PR.
+
 CHANGELOG.txt
 
 Purpose

@@ -30,15 +30,27 @@ def test_all_expands_only_to_active_providers_before_budget_calculation() -> Non
     assert REGISTERED_ACQUISITION_PROVIDERS == ACTIVE_ACQUISITION_PROVIDERS
     assert plan["providers"] == list(ACTIVE_ACQUISITION_PROVIDERS)
     assert "wos" not in plan["providers"]
+    assert "google_drive" not in plan["providers"]
     assert plan["deactivated_providers"] == sorted(DEACTIVATED_ACQUISITION_PROVIDERS)
     assert plan["maximum_total_logical_requests"] == (
         120 * 3 * len(ACTIVE_ACQUISITION_PROVIDERS)
     )
 
 
-@pytest.mark.parametrize("providers", ["wos", "crossref,wos", "WOS"])
-def test_wos_is_rejected_before_health_or_acquisition(providers: str) -> None:
-    with pytest.raises(ValueError, match="deactivated provider requested: wos"):
+@pytest.mark.parametrize(
+    ("providers", "blocked"),
+    [
+        ("wos", "wos"),
+        ("crossref,wos", "wos"),
+        ("WOS", "wos"),
+        ("google_drive", "google_drive"),
+        ("crossref,google_drive", "google_drive"),
+    ],
+)
+def test_deactivated_provider_is_rejected_before_health_or_acquisition(
+    providers: str, blocked: str
+) -> None:
+    with pytest.raises(ValueError, match=f"deactivated provider requested: {blocked}"):
         build_plan(_constraints(), providers, "3", "50")
 
 

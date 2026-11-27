@@ -141,10 +141,52 @@ def _normalise_page_diagnostics(
     """Return mapping-only diagnostics, replacing malformed entries fail closed."""
     normalised: List[Dict[str, Any]] = []
     provider_canonical = normalize_provider_name(provider_name)
+    required_fields = (
+        "logical_page",
+        "physical_request_index",
+        "requested_rows",
+        "returned_rows",
+        "normalized_rows",
+        "pagination_status",
+    )
     for index, diagnostic in enumerate(diagnostics, start=1):
         if isinstance(diagnostic, Mapping):
-            normalised.append(dict(diagnostic))
-            continue
+            row = dict(diagnostic)
+            status = str(row.get("pagination_status", "")).strip().lower()
+            if status in {"provider_not_configured", "not_configured", "no_credentials", "skipped"}:
+                row.setdefault("provider", provider_canonical)
+                row.setdefault("query", query)
+                row.setdefault("logical_page", 0)
+                row.setdefault("physical_request_index", 0)
+                row.setdefault("cursor_or_offset", "")
+                row.setdefault("requested_rows", 0)
+                row.setdefault("returned_rows", 0)
+                row.setdefault("normalized_rows", 0)
+                normalised.append(row)
+                continue
+            numeric_valid = True
+            for field in required_fields[:-1]:
+                value = row.get(field)
+                if isinstance(value, bool) or value is None:
+                    numeric_valid = False
+                    break
+                if isinstance(value, int):
+                    parsed = value
+                elif isinstance(value, str) and value.isascii() and value.isdigit():
+                    parsed = int(value)
+                else:
+                    numeric_valid = False
+                    break
+                if parsed < 0:
+                    numeric_valid = False
+                    break
+            status_valid = bool(str(row.get("pagination_status", "")).strip())
+            if all(field in row for field in required_fields) and numeric_valid and status_valid:
+                normalised.append(row)
+                continue
+            error_code = "malformed_page_diagnostic_mapping"
+        else:
+            error_code = "malformed_page_diagnostic_non_mapping"
         normalised.append(
             {
                 "provider": provider_canonical,
@@ -156,7 +198,7 @@ def _normalise_page_diagnostics(
                 "returned_rows": 0,
                 "normalized_rows": 0,
                 "pagination_status": "failed",
-                "errors": "malformed_page_diagnostic_non_mapping",
+                "errors": error_code,
                 "warnings": f"malformed_page_diagnostic_index:{index}",
             }
         )
@@ -172,6 +214,18 @@ def _normalise_page_diagnostics(
 _ZERO_ATTEMPT_STATUSES = frozenset(
     {"provider_not_configured", "not_configured", "no_credentials", "skipped"}
 )
+
+
+def _attempted_logical_pages(diagnostics: Sequence[Mapping[str, Any]]) -> int:
+    """Count distinct logical pages represented by canonical attempt diagnostics."""
+    pages = {
+        _safe_page_int(row.get("logical_page"))
+        for row in diagnostics
+        if _safe_page_int(row.get("logical_page")) > 0
+        and str(row.get("pagination_status", "")).strip().lower()
+        not in _ZERO_ATTEMPT_STATUSES
+    }
+    return len(pages)
 
 
 def _require_nonnegative_physical_request_count(
@@ -826,9 +880,10 @@ def _apply_query_constraint(
             math.ceil(applied_limit / max(1, rows_per_page)),
         ),
     )
-    actual_attempted_pages = max(
-        1,
-        int(attempted_logical_pages or computed_attempted_pages or 1),
+    actual_attempted_pages = (
+        max(0, int(attempted_logical_pages))
+        if attempted_logical_pages is not None
+        else max(1, int(computed_attempted_pages or 1))
     )
     if diagnostics:
         has_diagnostic_errors = any(
@@ -2059,7 +2114,9 @@ def main() -> int:
                         args.max_results_per_query,
                         physical_request_count=provider_physical_request_count,
                         page_diagnostics=result_page_diagnostics,
-                        attempted_logical_pages=effective_pages,
+                        attempted_logical_pages=_attempted_logical_pages(
+                            result_page_diagnostics
+                        ),
                     )
                     if result.errors:
                         print(f"    Errors: {result.errors}", file=sys.stderr)

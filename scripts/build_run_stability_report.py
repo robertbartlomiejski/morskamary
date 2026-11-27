@@ -24,7 +24,7 @@ CANONICAL_AXES = ("MARINE", "MARITIME", "OCEANIC", "HYDRONIZATION")
 AXIS_CODE_MAP = {"M": "MARINE", "T": "MARITIME", "O": "OCEANIC", "H": "HYDRONIZATION"}
 _REPO_ROOT_STABILITY = Path(__file__).resolve().parents[1]
 # Allow-list of live source_id prefixes (provider-scoped stable IDs).
-_LIVE_SOURCE_ID_PREFIXES = ("crossref:", "scopus:", "openalex:", "wos:")
+_LIVE_SOURCE_ID_PREFIXES = ("crossref:", "scopus:", "openalex:", "wos:", "graph:")
 _STATIC_RECORD_ORIGINS = {
     "static_baseline",
     "static_literature",
@@ -32,6 +32,7 @@ _STATIC_RECORD_ORIGINS = {
     "literature",
 }
 _CANONICAL_LIVE_RECORD_ORIGINS = {
+    "live_api",
     "dynamic_api_crossref",
     "dynamic_api_scopus",
     "dynamic_api_wos",
@@ -292,7 +293,7 @@ def _derive_contributing_provider_profile(run_dir: Path, manifest: dict[str, Any
                     contributing.add(provider)
     except (csv.Error, OSError):
         return [], False
-    return sorted(contributing), True
+    return sorted(contributing), bool(contributing)
 
 
 def _normalise_query_constraints(constraints: dict[str, Any]) -> dict[str, Any]:
