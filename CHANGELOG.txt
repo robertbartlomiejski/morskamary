@@ -17,6 +17,16 @@ Reviewer if any
 
 Entries
 Unreleased
+- 2026-11-26 (fix: restore deterministic source manifest and CI)
+  Change type fix
+  Scope governance manifest inventory and CI reproducibility
+  Files affected MANIFEST_SOURCES.csv CHANGELOG.txt
+  Summary Adds the generator-derived CLAUDE.md row so MANIFEST_SOURCES.csv matches Git-tracked files.
+  Reason The governance-and-repro check failed on main a523da7 because CLAUDE.md was tracked without a corresponding manifest entry.
+  Impact Governance inventory only; no analysis code, research data, generated outputs, or database records changed.
+  Provenance main a523da7; failing CI run 44414659956 (governance-and-repro).
+  Quality checks On candidate SHA ca7e8db (superseded by this review correction), PASS: python3 scripts/generate_manifest.py plus git diff --exit-code -- MANIFEST_SOURCES.csv; python3 scripts/changelog_guard.py --base-ref main; python -m flake8 src scripts tests run_full_analysis.py main.py; python -m mypy src scripts run_full_analysis.py main.py; CI pytest with coverage on Python 3.10, 3.11, and 3.12 (1,892 passed on each); Full Analysis; and CodeQL. Codecov upload reported a missing token but was non-blocking (fail_ci_if_error=false). No local checks or live/provider API calls were run; Supabase Preview was skipped. This changelog correction triggers a fresh exact-head validation.
+
 Use this section for changes in progress that are not yet merged into the main branch. Move items to dated entries when merged.
 
 - 2026-11-13 (fix: explicit authorization for research-pipeline provider smoke)
