@@ -69,6 +69,6 @@ def diagnose(driver, dsn):
 
 
 if __name__ == "__main__":
-    import psycopg
+    import psycopg  # type: ignore[import-not-found]  # Installed by the protected workflow.
 
     sys.exit(diagnose(psycopg, os.environ.get("ATTEMPT_LEDGER_DSN")))
