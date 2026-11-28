@@ -6,6 +6,21 @@ import sys
 ACQUISITION = "mor25-openalex-port-pilot-v1"
 BUDGET = "mor25-openalex-port-budget-v1"
 DIGEST = "28e1010f25b6f61f7b7f2265f773f6bd197e93b443aee8b4d65c2b2f0cda778c"
+# Authorization fields from the budget approved for the tagged pilot.
+EXPECTED_AUTHORIZATION = (
+    "physical_attempt_ledger/2",
+    DIGEST,
+    7,
+    {
+        "crossref": 0,
+        "google_drive": 0,
+        "microsoft_graph": 0,
+        "openalex": 7,
+        "scival": 0,
+        "scopus": 0,
+        "wos": 0,
+    },
+)
 OPTIONS = "-c statement_timeout=10000 -c lock_timeout=5000"
 
 
@@ -56,11 +71,11 @@ def diagnose(driver, dsn):
                 raise ValueError()
             stage = "verify_authorization"
             row = conn.execute(
-                "SELECT budget_sha256, maximum_total_physical_attempts, provider_ceilings_json "
+                "SELECT schema_version, budget_sha256, maximum_total_physical_attempts, provider_ceilings_json "
                 "FROM mor26_private.authorizations WHERE acquisition_id=%s AND budget_id=%s",
                 (ACQUISITION, BUDGET),
             ).fetchone()
-            if not row or row[:2] != (DIGEST, 7) or row[2].get("openalex") != 7:
+            if row != EXPECTED_AUTHORIZATION:
                 raise ValueError()
     except Exception as error:
         return failed(stage, error)

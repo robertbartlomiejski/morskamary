@@ -17,6 +17,16 @@ Reviewer if any
 
 Entries
 Unreleased
+- 2026-11-28 (fix: validate the protected MOR-25 authorization)
+  Change type fix
+  Scope scripts and diagnostic tests
+  Files affected scripts/mor25_ledger_diagnostic.py tests/test_mor25_ledger_diagnostic.py CHANGELOG.txt
+  Summary The protected read checks the ledger schema and the complete approved provider ceilings alongside the budget digest and global limit.
+  Reason A partial match could report a successful read for an authorization rejected by the pilot ledger.
+  Impact Diagnostic result for the tagged G2 pilot.
+  Provenance PR #297 review and the stored MOR-25 authorization.
+  Quality checks Seven focused unit tests passed locally.
+
 - 2026-11-26 (fix: restore deterministic source manifest and CI)
   Change type fix
   Scope governance manifest inventory and CI reproducibility
