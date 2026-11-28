@@ -5,6 +5,9 @@ on:
     paths:
       - ".github/workflows/mor25-pilot-rehearsal.yml"
       - ".github/workflows/full-live-analysis.yml"
+      - ".github/workflows/mor25-ledger-diagnostic.yml"
+      - "scripts/mor25_ledger_diagnostic.py"
+      - "tests/test_mor25_ledger_diagnostic.py"
       - "scripts/mor25_openalex_pilot.py"
       - "src/scientific_sources/**"
       - "tests/test_retrieval_trace.py"

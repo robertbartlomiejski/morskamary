@@ -25,6 +25,7 @@ file_name,file_type,publisher_or_owner,year,version_or_identifier,licence_or_rig
 .github/workflows/export-research-records.yml,other,,,,,,export_research_records,no
 .github/workflows/full-analysis.yml,other,,,,,,full_analysis,no
 .github/workflows/full-live-analysis.yml,other,,,,,,full_live_analysis,no
+.github/workflows/mor25-ledger-diagnostic.yml,other,,,,,,mor25_ledger_diagnostic,no
 .github/workflows/mor25-pilot-rehearsal.yml,other,,,,,,mor25_pilot_rehearsal,no
 .github/workflows/mor26-runner-acceptance.yml,other,,,,,,mor26_runner_acceptance,no
 .github/workflows/research-api-smoke.yml,other,,,,,,research_api_smoke,no
@@ -1246,6 +1247,7 @@ scripts/ingest_manual_supporting_sources.py,script,,,,,,ingest_manual_supporting
 scripts/Iscot_240905_142040.txt,script,,,,,,Iscot_240905_142040,yes
 scripts/manage_physical_attempt_budget.py,script,,,,,,manage_physical_attempt_budget,yes
 scripts/Materialnosc w morzu_241217_113623.txt,script,,,,,,Materialnosc_w_morzu_241217_113623,yes
+scripts/mor25_ledger_diagnostic.py,script,,,,,,mor25_ledger_diagnostic,yes
 scripts/mor25_openalex_pilot.py,script,,,,,,mor25_openalex_pilot,yes
 scripts/mor26_runner_fixture.py,script,,,,,,mor26_runner_fixture,yes
 scripts/pip install pypdf.txt,script,,,,,,pip_install_pypdf,yes
@@ -1375,6 +1377,7 @@ tests/test_live_run_audit.py,script,,,,,,test_live_run_audit,yes
 tests/test_load_real_competences.py,script,,,,,,test_load_real_competences,yes
 tests/test_main_entrypoints.py,script,,,,,,test_main_entrypoints,yes
 tests/test_mor25_cross_runner_acceptance.py,script,,,,,,test_mor25_cross_runner_acceptance,yes
+tests/test_mor25_ledger_diagnostic.py,script,,,,,,test_mor25_ledger_diagnostic,yes
 tests/test_mor26_security_contract.py,script,,,,,,test_mor26_security_contract,yes
 tests/test_nlp_reliability.py,script,,,,,,test_nlp_reliability,yes
 tests/test_openalex_provider.py,script,,,,,,test_openalex_provider,yes
