@@ -11,6 +11,7 @@ Covers:
 
 from __future__ import annotations
 
+import pytest
 import json
 import urllib.error
 import urllib.parse
@@ -2461,3 +2462,34 @@ class TestProbeMicrosoftGraph:
             urllib.request, "urlopen", lambda req, timeout=5: _FakeResp()
         )
         assert probe_microsoft_graph("t", "c", "s") == "present-and-valid"
+
+
+def test_paginated_budget_stop_preserves_completed_provider_results() -> None:
+    from types import SimpleNamespace
+
+    from src.scientific_sources import source_registry as registry_module
+    from src.scientific_sources.attempt_budget import AttemptBudgetExhausted
+    from src.scientific_sources.models import ProviderResult
+
+    class FakeProvider:
+        def __init__(self, name, result=None, stop=False):
+            self.capability = SimpleNamespace(name=name)
+            self.result = result
+            self.stop = stop
+
+        def search_paginated(self, *args, **kwargs):
+            if self.stop:
+                raise AttemptBudgetExhausted(
+                    "global_ceiling_exhausted", self.capability.name, "stop"
+                )
+            return self.result
+
+    first = ProviderResult()
+    registry = SourceRegistry.__new__(SourceRegistry)
+    registry._providers = [
+        FakeProvider("crossref", first),
+        FakeProvider("openalex", stop=True),
+    ]
+    with pytest.raises(registry_module.ProviderBatchBudgetStop) as caught:
+        registry.search_paginated("q", providers=["crossref", "openalex"])
+    assert caught.value.completed == [("crossref", first)]

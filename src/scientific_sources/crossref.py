@@ -22,6 +22,9 @@ from datetime import datetime, timezone
 from email.utils import parsedate_to_datetime
 from typing import Any, Dict, List
 
+from src.scientific_sources.retrieval_trace import record_page
+
+from src.scientific_sources.attempt_budget import governed_urlopen
 from src.scientific_sources.base import BaseProvider
 from src.scientific_sources.models import (
     LiteratureRecord,
@@ -218,7 +221,12 @@ class CrossrefProvider(BaseProvider):
                 # Count immediately before urlopen so response-read, timeout, and
                 # transport failures are retained as initiated HTTP attempts.
                 physical_request_count += 1
-                with urllib.request.urlopen(req, timeout=10) as resp:
+                with governed_urlopen(
+                    req,
+                    timeout=10,
+                    provider="crossref",
+                    purpose="retry" if attempt > 1 else "acquisition",
+                ) as resp:
                     data = json.loads(resp.read().decode())
                 if warnings:
                     warnings.append(
@@ -456,6 +464,7 @@ class CrossrefProvider(BaseProvider):
                     return result, page_diagnostics
                 return result
             assert data is not None
+            record_page("crossref", logical_page, 1, safe_rows, offset, data)
             message = data.get("message", {})
             items = message.get("items", [])
             if not isinstance(items, list):

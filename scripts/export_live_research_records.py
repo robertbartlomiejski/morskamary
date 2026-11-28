@@ -32,9 +32,11 @@ from __future__ import annotations
 
 import argparse
 import csv
+from contextlib import ExitStack
 import hashlib
 import inspect
 import json
+import os
 import math
 import re
 import sys
@@ -49,12 +51,20 @@ REPO_ROOT = Path(__file__).resolve().parents[1]
 if str(REPO_ROOT) not in sys.path:
     sys.path.insert(0, str(REPO_ROOT))
 
+from src.scientific_sources.attempt_budget import (  # noqa: E402
+    AttemptBudgetError,
+    require_governor,
+)
+from src.scientific_sources.retrieval_trace import RetrievalTrace  # noqa: E402
 from src.scientific_sources.models import (  # noqa: E402
     LiteratureRecord,
     ProviderResult,
     SourceEvidence,
 )
-from src.scientific_sources.source_registry import SourceRegistry  # noqa: E402
+from src.scientific_sources.source_registry import (  # noqa: E402
+    ProviderBatchBudgetStop,
+    SourceRegistry,
+)
 from src.scientific_sources.live_query_protocol import (  # noqa: E402
     LiveQueryProtocolError,
     load_live_query_protocol,
@@ -1539,7 +1549,100 @@ def export_raw_api_payloads(
     return written
 
 
+def _append_jsonl(path: Path, rows: Sequence[Mapping[str, Any]]) -> None:
+    if not rows:
+        return
+    path.parent.mkdir(parents=True, exist_ok=True)
+    with path.open("a", encoding="utf-8") as handle:
+        for row in rows:
+            handle.write(
+                json.dumps(dict(row), sort_keys=True, ensure_ascii=False) + "\n"
+            )
+        handle.flush()
+        os.fsync(handle.fileno())
+
+
+def _persist_completed_results_before_budget_stop(
+    completed: Sequence[Tuple[str, Any]],
+    *,
+    query: str,
+    query_id: str,
+    output_dir: Path,
+) -> None:
+    """Preserve completed provider evidence without creating publishable outputs."""
+    if not completed:
+        return
+    partial = output_dir / "partial_acquisition_failed"
+    run_id = os.environ.get("CURRENT_RUN_ID", "")
+    record_rows: List[Dict[str, Any]] = []
+    provenance_rows: List[Dict[str, Any]] = []
+    occurrence_rows: List[Dict[str, Any]] = []
+    payload_rows: List[Dict[str, Any]] = []
+    for provider_name, result in completed:
+        provider_key = normalize_provider_name(provider_name)
+        for record in result.records:
+            record_rows.append({
+                "run_id": run_id,
+                "query_id": query_id,
+                "provider": provider_key,
+                "record": _to_stage1_compliant_dict(record),
+            })
+            occurrence_rows.append({
+                "run_id": run_id,
+                "query_id": query_id,
+                "provider": provider_key,
+                "record_identity": _identity_key_from_record(record),
+            })
+        provenance_rows.extend({
+            "run_id": run_id,
+            "query_id": query_id,
+            "provider": provider_key,
+            "provenance": item.to_dict(),
+        } for item in result.provenance)
+        if result.raw_payload is not None:
+            serialised = json.dumps(
+                result.raw_payload, ensure_ascii=False, sort_keys=True
+            )
+            payload_rows.append({
+                "run_id": run_id,
+                "query_id": query_id,
+                "provider": provider_key,
+                "payload_sha256": hashlib.sha256(
+                    serialised.encode("utf-8")
+                ).hexdigest(),
+            })
+            export_raw_api_payloads(
+                [{
+                    "provider": provider_key,
+                    "query": query,
+                    "raw_payload": result.raw_payload,
+                }],
+                partial,
+            )
+    _append_jsonl(partial / "completed_records.jsonl", record_rows)
+    _append_jsonl(partial / "provenance.jsonl", provenance_rows)
+    _append_jsonl(partial / "raw_occurrences.jsonl", occurrence_rows)
+    _append_jsonl(partial / "provider_payload_index.jsonl", payload_rows)
+    (partial / "PUBLICATION_BLOCKED").write_text(
+        "physical attempt budget stop; partial evidence only\n",
+        encoding="utf-8",
+    )
+
+
 def main() -> int:
+    """Run the export; a physical-attempt budget stop is a non-zero failure."""
+    try:
+        with ExitStack() as stack:
+            return _run_export(stack)
+    except AttemptBudgetError as exc:
+        print(
+            f"[ERROR] physical attempt budget stop: {exc.code}: {exc}",
+            file=sys.stderr,
+        )
+        return 1
+
+
+def _run_export(stack: ExitStack) -> int:
     """Main entry point."""
     parser = argparse.ArgumentParser(
         description="Export live research records from configured providers"
@@ -1608,6 +1711,7 @@ def main() -> int:
         help="Authoritative protocol used to validate scientific live projections.",
     )
 
+    parser.add_argument("--retrieval-trace", type=Path, help="New run-specific SQLite provenance file")
     args = parser.parse_args()
 
     # Resolve page-shape defaults.  When the operator passes --default-rows-per-page
@@ -1639,6 +1743,9 @@ def main() -> int:
 
     # Parse offline mode
     offline = args.offline.lower() in ("true", "1", "yes")
+    if not offline:
+        # Reject missing/invalid budget or ledger before any provider request.
+        require_governor()
 
     # Load query file
     query_file_path = Path(args.query_file)
@@ -1857,6 +1964,21 @@ def main() -> int:
                 print(f"  - {err}", file=sys.stderr)
             return 1
 
+    if args.retrieval_trace:
+        planned_pairs: list[tuple[str, str, str, int]] = []
+        for sector_data in query_groups.values():
+            for query in sector_data["queries"]:
+                entry = constraints_by_query[query.lower()]
+                sampling = entry.get("sampling_strategy", {})
+                _, limit = _resolve_effective_sampling_request(
+                    declared_pages=int(sampling.get("pages", _default_logical_pages)),
+                    declared_rows_per_page=int(sampling.get("rows_per_page", _default_rows_per_page)),
+                    max_results=args.max_results_per_query,
+                )
+                planned_pairs.extend((str(entry["query_id"]), query, name, limit) for name in ordered_provider_names)
+        trace = RetrievalTrace(args.retrieval_trace, os.environ.get("CURRENT_RUN_ID", ""), planned_pairs, offline=offline)
+        stack.enter_context(trace.activate())
+
     # Storage for all results
     all_records: List[LiteratureRecord] = []
     all_provenance: List[SourceEvidence] = []
@@ -1996,6 +2118,14 @@ def main() -> int:
                         sort_strategy_by_provider=resolved_sort_strategy,
                         time_window=time_window,
                     )
+                except ProviderBatchBudgetStop as exc:
+                    _persist_completed_results_before_budget_stop(
+                        exc.completed,
+                        query=query,
+                        query_id=str(constraint["query_id"]),
+                        output_dir=Path(args.output_dir),
+                    )
+                    raise exc.cause
                 except PaginatedDispatchContractError as exc:
                     print(
                         "Error: paginated acquisition dispatch contract failed: "

@@ -26,6 +26,18 @@ from dataclasses import dataclass
 from pathlib import Path
 from typing import Callable
 
+REPO_ROOT = Path(__file__).resolve().parents[1]
+if str(REPO_ROOT) not in sys.path:
+    sys.path.insert(0, str(REPO_ROOT))
+
+from src.scientific_sources.attempt_budget import (  # noqa: E402
+    AttemptBudgetError,
+    attempt_context,
+    current_provider,
+    governed_urlopen,
+    require_governor,
+)
+
 _REQUEST_TIMEOUT_SECONDS = 12
 _ERROR_BODY_MAX_BYTES = 512
 _REDACTED_QUERY_PARAMS = frozenset({"api_key", "apikey", "key", "token", "secret"})
@@ -103,7 +115,12 @@ def _is_rate_limited(code: int, body: str) -> bool:
 def _request(url: str, headers: dict[str, str]) -> ProbeResult:
     req = urllib.request.Request(url, headers=headers)
     try:
-        with urllib.request.urlopen(req, timeout=_REQUEST_TIMEOUT_SECONDS) as resp:
+        with governed_urlopen(
+            req,
+            timeout=_REQUEST_TIMEOUT_SECONDS,
+            provider=current_provider() or "unattributed_health",
+            purpose="health",
+        ) as resp:
             return ProbeResult("", "ok", "request succeeded", resp.status)
     except urllib.error.HTTPError as exc:
         body = ""
@@ -203,7 +220,12 @@ def probe_microsoft_graph() -> ProbeResult:
     ).encode("utf-8")
     request = urllib.request.Request(token_url, data=payload, method="POST")
     try:
-        with urllib.request.urlopen(request, timeout=_REQUEST_TIMEOUT_SECONDS) as resp:
+        with governed_urlopen(
+            request,
+            timeout=_REQUEST_TIMEOUT_SECONDS,
+            provider="microsoft_graph",
+            purpose="health",
+        ) as resp:
             if resp.status == 200:
                 return ProbeResult(
                     "microsoft_graph", "ok", "token request succeeded", resp.status
@@ -303,7 +325,16 @@ def main() -> int:
         print(f"Error: {exc}", file=sys.stderr)
         return 1
     probe_functions = _probe_functions()
-    results = [probe_functions[name]() for name in requested_provider_names]
+    try:
+        # Fail before any probe when no verified attempt budget is configured.
+        require_governor()
+        results = []
+        for name in requested_provider_names:
+            with attempt_context(provider=name, purpose="health"):
+                results.append(probe_functions[name]())
+    except AttemptBudgetError as exc:
+        print(f"[ERROR] physical attempt budget stop: {exc.code}: {exc}", file=sys.stderr)
+        return 1
     print("=== Research API health preflight ===")
     for result in results:
         code = f" (HTTP {result.http_status})" if result.http_status else ""

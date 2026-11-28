@@ -264,3 +264,27 @@ def test_no_github_expression_in_shell_run_blocks() -> None:
     assert "${{ github." not in run_text, (
         "github.* values must be passed through env:, not interpolated in shell"
     )
+
+
+def test_live_requests_and_audit_share_protected_postgres_ledger() -> None:
+    import yaml
+
+    jobs = yaml.safe_load(_text())["jobs"]
+    job = jobs["live-analysis"]
+    assert job["env"]["ATTEMPT_LEDGER_BACKEND"] == "postgres"
+    steps = {step.get("name"): step for step in job["steps"]}
+    for name in (
+        "Initialize physical HTTP-attempt budget and ledger",
+        "Provider health preflight",
+        "Export live research records",
+        "Write sanitized physical HTTP-attempt audit",
+    ):
+        step = steps[name]
+        assert step["env"]["ATTEMPT_LEDGER_DSN"] == (
+            "${{ secrets.LIVE_ATTEMPT_LEDGER_RUNTIME_DSN }}"
+        )
+        assert "--ledger " not in step["run"]
+    assert steps["Initialize physical HTTP-attempt budget and ledger"]["id"] == "init_budget"
+    assert steps["Write sanitized physical HTTP-attempt audit"]["if"] == (
+        "always() && steps.init_budget.outcome == 'success'"
+    )

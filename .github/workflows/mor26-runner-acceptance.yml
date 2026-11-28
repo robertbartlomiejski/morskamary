@@ -1,0 +1,363 @@
+name: MOR-26 independent hosted-runner acceptance (NO PROVIDER HTTP)
+
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - "src/scientific_sources/attempt_*"
+      - "scripts/mor26_runner_fixture.py"
+      - "sql/mor26_private_attempt_ledger.sql"
+      - "config/mor26_route_dispositions.json"
+      - "tests/test_mor26_security_contract.py"
+      - ".github/workflows/mor26-runner-acceptance.yml"
+
+permissions:
+  contents: read
+
+jobs:
+  route-audit:
+    runs-on: ubuntu-latest
+    env:
+      PYTHONPATH: ${{ github.workspace }}
+      MOR26_HEAD: ${{ github.event.pull_request.head.sha }}
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          ref: ${{ env.MOR26_HEAD }}
+          persist-credentials: false
+      - uses: actions/setup-python@v6
+        with:
+          python-version: "3.11"
+      - name: Prove every conservative dynamic-route finding is dispositioned
+        shell: python
+        run: |
+          import json
+          import os
+          from pathlib import Path
+          from src.scientific_sources.attempt_route_inventory import (
+              find_unverified_network_routes,
+              validate_route_dispositions,
+          )
+          root = Path(".").resolve()
+          findings = find_unverified_network_routes(root)
+          errors = validate_route_dispositions(root)
+          payload = {
+              "schema": "mor26_route_audit/2",
+              "commit_sha": os.environ["MOR26_HEAD"],
+              "github_run_id": os.environ["GITHUB_RUN_ID"],
+              "findings": findings,
+              "errors": errors,
+          }
+          Path("mor26-route-audit.json").write_text(
+              json.dumps(payload, indent=2, sort_keys=True) + "\n",
+              encoding="utf-8",
+          )
+          if errors:
+              raise SystemExit("\n".join(errors))
+          print(f"MOR-26 route audit: PASS ({len(findings)} reviewed findings)")
+      - uses: actions/upload-artifact@v4
+        with:
+          name: mor26-route-audit-${{ github.run_attempt }}
+          path: mor26-route-audit.json
+
+  outage-fail-closed:
+    runs-on: ubuntu-latest
+    env:
+      MOR26_HEAD: ${{ github.event.pull_request.head.sha }}
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          ref: ${{ env.MOR26_HEAD }}
+          persist-credentials: false
+      - uses: actions/setup-python@v6
+        with:
+          python-version: "3.11"
+      - run: python -m pip install -e . "psycopg[binary]==3.3.9"
+      - name: Prove unavailable PostgreSQL fails closed before fake transport
+        run: |
+          python scripts/mor26_runner_fixture.py --phase outage \
+            --acquisition-id "mor26-${{ github.run_id }}" \
+            --head "$MOR26_HEAD" --output "$RUNNER_TEMP/outage.json"
+      - uses: actions/upload-artifact@v4
+        with:
+          name: mor26-evidence-outage-${{ github.run_attempt }}
+          path: ${{ runner.temp }}/outage.json
+
+  runner-a:
+    if: >-
+      ${{ vars.MOR26_ACCEPTANCE_ENABLED == 'true' &&
+          github.event.pull_request.head.repo.full_name == github.repository &&
+          github.event.pull_request.user.login == 'robertbartlomiejski' }}
+    environment: mor26-acceptance
+    runs-on: ubuntu-latest
+    env:
+      MOR26_HEAD: ${{ github.event.pull_request.head.sha }}
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          ref: ${{ env.MOR26_HEAD }}
+          persist-credentials: false
+      - uses: actions/setup-python@v6
+        with:
+          python-version: "3.11"
+      - run: python -m pip install -e . "psycopg[binary]==3.3.9"
+      - name: Reserve K=3 on runner A; seed N=1 race and provider-ceiling authorization
+        env:
+          MOR26_ACCEPTANCE_AUTH_DSN: ${{ secrets.MOR26_ACCEPTANCE_AUTH_DSN }}
+          MOR26_ACCEPTANCE_RUNTIME_DSN: ${{ secrets.MOR26_ACCEPTANCE_RUNTIME_DSN }}
+        run: |
+          if [[ -z "${MOR26_ACCEPTANCE_AUTH_DSN}" || -z "${MOR26_ACCEPTANCE_RUNTIME_DSN}" ]]; then
+            echo "::error::Required PostgreSQL acceptance DSN is unavailable in mor26-acceptance."
+            exit 1
+          fi
+          python scripts/mor26_runner_fixture.py --phase seed-a \
+            --acquisition-id "mor26-${{ github.run_id }}" \
+            --head "$MOR26_HEAD" --output "$RUNNER_TEMP/runner-a.json"
+      - uses: actions/upload-artifact@v4
+        with:
+          name: mor26-evidence-a-${{ github.run_attempt }}
+          path: ${{ runner.temp }}/runner-a.json
+
+  runner-b:
+    needs: [runner-a]
+    environment: mor26-acceptance
+    runs-on: ubuntu-latest
+    env:
+      MOR26_HEAD: ${{ github.event.pull_request.head.sha }}
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          ref: ${{ env.MOR26_HEAD }}
+          persist-credentials: false
+      - uses: actions/setup-python@v6
+        with:
+          python-version: "3.11"
+      - run: python -m pip install -e . "psycopg[binary]==3.3.9"
+      - name: Check remaining N-K=4 and refuse attempt 8
+        env:
+          MOR26_ACCEPTANCE_RUNTIME_DSN: ${{ secrets.MOR26_ACCEPTANCE_RUNTIME_DSN }}
+        run: |
+          if [[ -z "${MOR26_ACCEPTANCE_RUNTIME_DSN}" ]]; then
+            echo "::error::Required PostgreSQL acceptance DSN is unavailable in mor26-acceptance."
+            exit 1
+          fi
+          python scripts/mor26_runner_fixture.py --phase b \
+            --acquisition-id "mor26-${{ github.run_id }}" \
+            --head "$MOR26_HEAD" --output "$RUNNER_TEMP/runner-b.json"
+      - uses: actions/upload-artifact@v4
+        with:
+          name: mor26-evidence-b-${{ github.run_attempt }}
+          path: ${{ runner.temp }}/runner-b.json
+
+  race:
+    needs: [runner-a]
+    strategy:
+      fail-fast: false
+      matrix:
+        rival: [one, two]
+    environment: mor26-acceptance
+    runs-on: ubuntu-latest
+    env:
+      MOR26_HEAD: ${{ github.event.pull_request.head.sha }}
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          ref: ${{ env.MOR26_HEAD }}
+          persist-credentials: false
+      - uses: actions/setup-python@v6
+        with:
+          python-version: "3.11"
+      - run: python -m pip install -e . "psycopg[binary]==3.3.9"
+      - name: Race for a single remaining physical attempt
+        env:
+          MOR26_RACE_CONTENDER: ${{ matrix.rival }}
+          MOR26_ACCEPTANCE_RUNTIME_DSN: ${{ secrets.MOR26_ACCEPTANCE_RUNTIME_DSN }}
+        run: |
+          if [[ -z "${MOR26_ACCEPTANCE_RUNTIME_DSN}" ]]; then
+            echo "::error::Required PostgreSQL acceptance DSN is unavailable in mor26-acceptance."
+            exit 1
+          fi
+          python scripts/mor26_runner_fixture.py --phase race \
+            --acquisition-id "mor26-${{ github.run_id }}" \
+            --head "$MOR26_HEAD" \
+            --output "$RUNNER_TEMP/race-${{ matrix.rival }}.json"
+      - uses: actions/upload-artifact@v4
+        with:
+          name: mor26-evidence-race-${{ matrix.rival }}-${{ github.run_attempt }}
+          path: ${{ runner.temp }}/race-${{ matrix.rival }}.json
+
+  provider-ceiling:
+    needs: [runner-a]
+    environment: mor26-acceptance
+    runs-on: ubuntu-latest
+    env:
+      MOR26_HEAD: ${{ github.event.pull_request.head.sha }}
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          ref: ${{ env.MOR26_HEAD }}
+          persist-credentials: false
+      - uses: actions/setup-python@v6
+        with:
+          python-version: "3.11"
+      - run: python -m pip install -e . "psycopg[binary]==3.3.9"
+      - name: Enforce provider ceiling before fake transport
+        env:
+          MOR26_ACCEPTANCE_RUNTIME_DSN: ${{ secrets.MOR26_ACCEPTANCE_RUNTIME_DSN }}
+        run: |
+          if [[ -z "${MOR26_ACCEPTANCE_RUNTIME_DSN}" ]]; then
+            echo "::error::Required PostgreSQL acceptance DSN is unavailable in mor26-acceptance."
+            exit 1
+          fi
+          python scripts/mor26_runner_fixture.py --phase provider \
+            --acquisition-id "mor26-${{ github.run_id }}" \
+            --head "$MOR26_HEAD" --output "$RUNNER_TEMP/provider.json"
+      - uses: actions/upload-artifact@v4
+        with:
+          name: mor26-evidence-provider-${{ github.run_attempt }}
+          path: ${{ runner.temp }}/provider.json
+
+  verify:
+    needs: [runner-b, race, provider-ceiling, outage-fail-closed, route-audit]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          pattern: mor26-evidence-*-${{ github.run_attempt }}
+          path: mor26-evidence
+          merge-multiple: true
+      - uses: actions/download-artifact@v4
+        with:
+          name: mor26-route-audit-${{ github.run_attempt }}
+          path: mor26-route
+      - name: Validate evidence from the exact PR HEAD and run
+        env:
+          MOR26_HEAD: ${{ github.event.pull_request.head.sha }}
+        shell: python
+        run: |
+          import json
+          import os
+          import re
+          from pathlib import Path
+
+          head = os.environ["MOR26_HEAD"]
+          run_id = os.environ["GITHUB_RUN_ID"]
+          acquisition = f"mor26-{run_id}"
+          expected = {
+              "runner-a.json": ("seed-a", "runner-a", acquisition),
+              "runner-b.json": ("b", "runner-b", acquisition),
+              "race-one.json": ("race", "race", acquisition + "-race"),
+              "race-two.json": ("race", "race", acquisition + "-race"),
+              "provider.json": ("provider", "provider-ceiling", acquisition + "-provider"),
+              "outage.json": ("outage", "outage-fail-closed", acquisition),
+          }
+          paths = {p.name: p for p in Path("mor26-evidence").glob("*.json")}
+          assert paths.keys() == expected.keys(), "Incomplete acceptance artifact set"
+          docs = {}
+          for name, (phase, job, acq) in expected.items():
+              doc = json.loads(paths[name].read_text(encoding="utf-8"))
+              assert doc["schema"] == "mor26_two_runner_acceptance/2", name
+              assert doc["commit_sha"] == head and doc["github_run_id"] == run_id, name
+              assert (doc["phase"], doc["github_job"], doc["acquisition_id"]) == (
+                  phase, job, acq
+              ), name
+              assert re.fullmatch(r"[a-f0-9]{64}", doc["budget_sha256"]), name
+              docs[name] = doc
+
+          route_path = Path("mor26-route/mor26-route-audit.json")
+          route = json.loads(route_path.read_text(encoding="utf-8"))
+          assert route["schema"] == "mor26_route_audit/2"
+          assert route["commit_sha"] == head and route["github_run_id"] == run_id
+          assert route["errors"] == []
+
+          a = docs["runner-a.json"]
+          b = docs["runner-b.json"]
+          race = [docs["race-one.json"], docs["race-two.json"]]
+          provider = docs["provider.json"]
+          outage = docs["outage.json"]
+
+          assert a["budget_sha256"] == b["budget_sha256"] == outage["budget_sha256"]
+          assert a["before"] == 0 and a["reserved_total"] == a["fake_dispatches"] == 3
+          assert a["refused_total"] == 0
+          assert b["before"] == 3 and b["reserved_total"] == 7
+          assert b["fake_dispatches"] == 4 and b["attempt_n_plus_1_denied"] is True
+          assert b["refused_total"] == 1
+          assert b["fake_completions"] == 4
+          privileges = b["runtime_privileges"]
+          assert privileges["rls_active_tables"] == 4
+          assert privileges["denied_sqlstates"] == {
+              "create_budget": "42501", "increase_budget": "42501", "delete_attempt": "42501",
+          }
+
+          assert race[0]["budget_sha256"] == race[1]["budget_sha256"]
+          assert all(d["rendezvous_count"] == 2 for d in race)
+          assert all(d["before"] == 0 and d["reserved_total"] == 1 for d in race)
+          assert sorted(d["fake_dispatches"] for d in race) == [0, 1]
+          assert next(d for d in race if d["fake_dispatches"] == 0)["refused_total"] == 1
+
+          assert provider["reserved_total"] == provider["fake_dispatches"] == 1
+          assert provider["provider_ceiling_denied"] is True and provider["refused_total"] == 1
+          assert outage["reserved_total"] == outage["fake_dispatches"] == 0
+          assert outage["unavailable_store_denied"] is True
+          print("MOR-26 ACCEPTANCE: PASS (no scientific-provider HTTP)")
+      - uses: actions/upload-artifact@v4
+        with:
+          name: mor26-independent-runner-sanitized-evidence-${{ github.run_attempt }}
+          path: |
+            mor26-evidence/
+            mor26-route/
+          if-no-files-found: error
+
+  acceptance-status:
+    if: ${{ always() }}
+    needs:
+      - route-audit
+      - outage-fail-closed
+      - runner-a
+      - runner-b
+      - race
+      - provider-ceiling
+      - verify
+    runs-on: ubuntu-latest
+    steps:
+      - name: Fail closed unless the complete shared-PostgreSQL acceptance executed
+        env:
+          ACCEPTANCE_ENABLED: ${{ vars.MOR26_ACCEPTANCE_ENABLED == 'true' }}
+          TRUSTED_PR: ${{ github.event.pull_request.head.repo.full_name == github.repository && github.event.pull_request.user.login == 'robertbartlomiejski' }}
+          ROUTE_RESULT: ${{ needs.route-audit.result }}
+          OUTAGE_RESULT: ${{ needs.outage-fail-closed.result }}
+          RUNNER_A_RESULT: ${{ needs.runner-a.result }}
+          RUNNER_B_RESULT: ${{ needs.runner-b.result }}
+          RACE_RESULT: ${{ needs.race.result }}
+          PROVIDER_RESULT: ${{ needs.provider-ceiling.result }}
+          VERIFY_RESULT: ${{ needs.verify.result }}
+        run: |
+          printf '%s\n' \
+            "route=$ROUTE_RESULT" \
+            "outage=$OUTAGE_RESULT" \
+            "runner_a=$RUNNER_A_RESULT" \
+            "runner_b=$RUNNER_B_RESULT" \
+            "race=$RACE_RESULT" \
+            "provider=$PROVIDER_RESULT" \
+            "verify=$VERIFY_RESULT"
+          if [[ "$ROUTE_RESULT" != "success" || "$OUTAGE_RESULT" != "success" ]]; then
+            echo "::error title=MOR-26 pre-acceptance evidence failed::Route audit and outage fail-closed must pass."
+            exit 1
+          fi
+          if [[ "$RUNNER_A_RESULT" == "skipped" ]]; then
+            if [[ "$ACCEPTANCE_ENABLED" != "true" ]]; then
+              echo "::error title=G2_NOT_APPROVED_EXTERNAL_BLOCK::Repository variable MOR26_ACCEPTANCE_ENABLED must be true."
+            elif [[ "$TRUSTED_PR" != "true" ]]; then
+              echo "::error title=G2_NOT_APPROVED_EXTERNAL_BLOCK::Runner A requires a trusted same-repository pull request."
+            else
+              echo "::error title=G2_NOT_APPROVED_EXTERNAL_BLOCK::Runner A was skipped. Inspect its job condition and environment status."
+            fi
+            exit 1
+          fi
+          if [[ "$RUNNER_A_RESULT" != "success" || "$RUNNER_B_RESULT" != "success" || \
+                "$RACE_RESULT" != "success" || "$PROVIDER_RESULT" != "success" || \
+                "$VERIFY_RESULT" != "success" ]]; then
+            echo "::error title=G2_NOT_APPROVED_ACCEPTANCE_FAILURE::At least one independent-runner acceptance invariant failed."
+            exit 1
+          fi
+          echo "G2_ACCEPTANCE_EVIDENCE_COMPLETE"

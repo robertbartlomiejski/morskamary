@@ -17,6 +17,16 @@ Reviewer if any
 
 Entries
 Unreleased
+- 2026-11-28 (fix: validate the protected MOR-25 authorization)
+  Change type fix
+  Scope scripts and diagnostic tests
+  Files affected scripts/mor25_ledger_diagnostic.py tests/test_mor25_ledger_diagnostic.py CHANGELOG.txt
+  Summary The protected read checks the ledger schema and the complete approved provider ceilings alongside the budget digest and global limit.
+  Reason A partial match could report a successful read for an authorization rejected by the pilot ledger.
+  Impact Diagnostic result for the tagged G2 pilot.
+  Provenance PR #297 review and the stored MOR-25 authorization.
+  Quality checks Seven focused unit tests passed locally.
+
 - 2026-11-26 (fix: restore deterministic source manifest and CI)
   Change type fix
   Scope governance manifest inventory and CI reproducibility
@@ -28,6 +38,49 @@ Unreleased
   Quality checks On candidate SHA ca7e8db (superseded by this review correction), PASS: python3 scripts/generate_manifest.py plus git diff --exit-code -- MANIFEST_SOURCES.csv; python3 scripts/changelog_guard.py --base-ref main; python -m flake8 src scripts tests run_full_analysis.py main.py; python -m mypy src scripts run_full_analysis.py main.py; CI pytest with coverage on Python 3.10, 3.11, and 3.12 (1,892 passed on each); Full Analysis; and CodeQL. Codecov upload reported a missing token but was non-blocking (fail_ci_if_error=false). No local checks or live/provider API calls were run; Supabase Preview was skipped. This changelog correction triggers a fresh exact-head validation.
 
 Use this section for changes in progress that are not yet merged into the main branch. Move items to dated entries when merged.
+
+- 2026-11-28 (test: verify hosted MOR-26 runtime privileges after RLS deployment)
+  Files affected scripts/mor26_runner_fixture.py .github/workflows/mor26-runner-acceptance.yml tests/test_mor26_security_contract.py CHANGELOG.txt
+  Runner B completes four simulated dispatches and checks three rollback-only forbidden writes on its own fixture. The evidence includes effective row security, server version and PostgreSQL denial codes.
+
+- 2026-11-20 (add: trace individual acquisition responses and query occurrences, MOR-25)
+  Files affected .github/workflows/mor25-pilot-rehearsal.yml scripts/mor25_openalex_pilot.py scripts/prepare_live_acquisition_plan.py scripts/export_live_research_records.py .github/workflows/full-live-analysis.yml src/scientific_sources/retrieval_trace.py src/scientific_sources/attempt_budget.py src/scientific_sources/source_registry.py src/scientific_sources/crossref.py src/scientific_sources/elsevier_scopus.py src/scientific_sources/openalex.py tests/test_retrieval_trace.py tests/test_prepare_live_acquisition_plan.py MANIFEST_SOURCES.csv CHANGELOG.txt
+  Record query results, original page positions, shared work identities and reservation links in a run-specific retrieval database. Prepare a separately protected two-query OpenAlex pilot. Report the full three-provider scope as 360 planned pairs; keep the broad workflow freeze.
+
+- 2026-11-20 (fix: bind the protected live workflow to the shared PostgreSQL ledger)
+  Files affected .github/workflows/full-live-analysis.yml tests/test_full_live_analysis_workflow.py CHANGELOG.txt
+  Share the runtime ledger across initialization, provider health, acquisition and audit.
+  Keep G2 frozen pending an authorized pilot. This change produces no scientific records.
+
+- 2026-11-16 (fix: diagnose MOR-26 acceptance skips and bind evidence to the exact run)
+  Change type fix
+  Scope governance GitHub Actions
+  Files affected .github/workflows/mor26-runner-acceptance.yml CHANGELOG.txt
+  Summary Distinguishes an opt-in or trust skip from an execution failure and limits acceptance credentials to fixture steps. Requires route and ledger artifacts from the expected PR commit, run and run attempt.
+  Reason A skipped verifier can be downstream of a failed job, and matching artifact SHAs alone do not prove the expected commit executed.
+  Impact Synthetic acceptance only. No scientific data, acquisition policy or G2 authorization changes.
+  Provenance PR #297, Linear MOR-26, GitHub Actions run 43876425476.
+  Quality checks Local YAML and shell/Python syntax checks, six gate scenarios and seven synthetic evidence scenarios, including a wrong-SHA regression. Shared PostgreSQL execution pending.
+
+- 2026-11-15 (update: MOR-25 acquisition-scoped budget/2 and fail-closed G2 freeze)
+  Change type update
+  Scope governance physical HTTP-attempt budget tests and GitHub Actions
+  Files affected src/scientific_sources/attempt_budget.py scripts/manage_physical_attempt_budget.py tests/conftest.py tests/test_physical_attempt_budget.py tests/test_mor25_cross_runner_acceptance.py .github/workflows/full-live-analysis.yml .github/workflows/research-api-smoke.yml .github/workflows/research-pipeline.yml MANIFEST_SOURCES.csv CHANGELOG.txt
+  Summary Migrates the physical attempt authorization identity to stable acquisition_id, budget_id and plan_sha256, hashing quotas independently of workflow_run_id and run_attempt. Adds necessary local independent-process N-K/N+1 regression, and hard-blocks all three draft live workflows before provider calls until a remotely durable shared atomic ledger and separately approved G2 pilot have been validated.
+  Reason Run-scoped v1 quotas and runner-local SQLite can reset across independent hosted runners. A successful local SQLite process test is not cross-runner acceptance.
+  Impact No retained scientific evidence, archives, credentials, 120-query protocol, QMBD calculations or H1-H3 results changed; G2 stays NOT APPROVED. No live workflow dispatched.
+  Provenance Linear MOR-25, PR #297; previous exact-HEAD 389aa9c8f9406735c1a9845d44fa7f96e1861c18; 2026-11-15 offline acceptance ledger.
+  Quality checks Exact-head GitHub Actions and full test suite pending for this candidate. Local subprocess test proves only one shared SQLite filesystem, not cross-hosted-runner durability. Follow-on P0 remote transactional store and P1 route/audit gates remain open.
+
+- 2026-11-14 (add: fail-closed pre-request physical HTTP-attempt budget)
+  Change type add
+  Scope governance scripts provider acquisition network boundary and GitHub Actions
+  Files affected src/scientific_sources/attempt_budget.py scripts/manage_physical_attempt_budget.py scripts/check_research_api_health.py scripts/export_live_research_records.py src/scientific_sources/crossref.py src/scientific_sources/openalex.py src/scientific_sources/elsevier_scopus.py src/scientific_sources/web_of_science.py src/scientific_sources/scival.py src/scientific_sources/microsoft_graph.py .github/workflows/full-live-analysis.yml .github/workflows/research-api-smoke.yml .github/workflows/research-pipeline.yml tests/conftest.py tests/test_physical_attempt_budget.py MANIFEST_SOURCES.csv CHANGELOG.txt
+  Summary Adds a versioned run-scoped budget (physical_attempt_budget/1) with global and per-provider ceilings enforced through a shared SQLite ledger. An attempt is reserved atomically before every physical request, including health checks, pagination and retries, and failed, timed-out and rate-limited attempts are never refunded. Missing budgets, corrupt ledgers, unavailable stores and ungoverned network routes fail before any request, and a sanitized audit is written.
+  Reason Logical-page budgeting under-counts physical attempts (retries, Scopus chunks, Graph token requests) and only runs after acquisition.
+  Impact No scientific inputs, outputs, 120-query protocol, four-axis QMBD contract or H1-H3 results changed. The post-acquisition logical-page budget is unchanged. This does not authorize G2 live acquisition.
+  Provenance GitHub #296, Linear MOR-25; main baseline ebf171081d034119567e4fb97e60a5a0d9e797a3. Not copied from historic Draft #241.
+  Quality checks flake8, mypy and full pytest with negative tests (zero budget, N and N+1, 429/5xx/timeout retries, pagination, threads, processes, corrupt/unavailable ledger, bypass). Fixtures only; no live API dispatch.
 
 - 2026-11-13 (fix: explicit authorization for research-pipeline provider smoke)
   Change type fix
@@ -1692,3 +1745,9 @@ PR #270 follow-up completion hardening
 - Restrict inferential dimensions to non-zero margins while retaining all zero cells descriptively.
 
 PR #270 review-address pass: reinforce corpus-screening interpretation boundaries, add explicit `screening_validation_state` flags to screening rows, and strengthen external-comparison provenance labels/consumer read-order guidance.
+
+2026-11-15 — MOR-26 staged independent-runner acceptance (G2 remains blocked)
+- Draft PR #297: opt-in pre-provisioned PostgreSQL reservation backend, private schema, strict written-audit validator and conservative dynamic subprocess route inventory.
+- Separately hosted runner A/B plus N-1 race workflow is fixture-only and requires a protected external PostgreSQL test DB; no claim of completed runner acceptance or of live authorization.
+- Added twenty *new* offline MOR-26 tests; the historical 8,116-byte RED suite remains unavailable and is not represented as restored.
+- No scientific-provider HTTP, no data archive rewrite, no PR merge, and no changes to empirical H1/H2/H3 claims.

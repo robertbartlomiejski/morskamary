@@ -12,6 +12,7 @@ import urllib.request
 from datetime import datetime, timezone
 from typing import Any, Callable, Dict, List
 
+from src.scientific_sources.attempt_budget import governed_urlopen
 from src.scientific_sources.base import BaseProvider
 from src.scientific_sources.models import (
     LiteratureRecord,
@@ -125,7 +126,9 @@ def probe_microsoft_graph(
     """
     try:
         req = urllib.request.Request(_PROBE_URL)
-        with urllib.request.urlopen(req, timeout=5):
+        with governed_urlopen(
+            req, timeout=5, provider="microsoft_graph", purpose="health"
+        ):
             pass
         return _PROBE_VALID_STATUS
     except urllib.error.URLError:
@@ -180,7 +183,7 @@ class MicrosoftGraphProvider(BaseProvider):
         req = urllib.request.Request(token_url, data=payload, method="POST")
         if on_physical_request is not None:
             on_physical_request()
-        with urllib.request.urlopen(req, timeout=12) as resp:
+        with governed_urlopen(req, timeout=12, provider="microsoft_graph") as resp:
             data = json.loads(resp.read().decode("utf-8"))
         return str(data.get("access_token", ""))
 
@@ -304,7 +307,9 @@ class MicrosoftGraphProvider(BaseProvider):
                 headers={"Authorization": f"Bearer {token}", "Accept": "application/json"},
             )
             count_physical_request()
-            with urllib.request.urlopen(req, timeout=12) as resp:
+            with governed_urlopen(
+                req, timeout=12, provider="microsoft_graph"
+            ) as resp:
                 payload = json.loads(resp.read().decode("utf-8"))
             records = self._parse_items(payload, query)
             return ProviderResult(
